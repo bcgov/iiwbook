@@ -1,12 +1,12 @@
-# HL Indy Email Verification Service
+# IIW Book
 
 ## Running 
 
 Make sure [Docker](https://docker.com) is installed and running.
 
-Install [ngrok[](https://ngrok.com).
+Install [ngrok](https://ngrok.com).
 
-1. Run `ngrok http 10000`
+1. Run `ngrok http 11000`
 
 2. Copy the `https` url it generates for you (**must be https**)
 
@@ -15,4 +15,4 @@ Install [ngrok[](https://ngrok.com).
 4. In the `docker` directory run `docker-compose build` and `docker-compose up`.
 
 
-Then visit [http://localhost:8000](http://localhost:8000) to see the app running and visit [http://localhost:8050](http://localhost:8050) to see any outbound mail the app is sending (it won't actually send any email message in the development environment.)
+Then visit [http://localhost:7000](http://localhost:7000) to see the app running
