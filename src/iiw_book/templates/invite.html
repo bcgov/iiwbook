@@ -1,0 +1,82 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+  <!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+    <title>IIW Attendance Issuer</title>
+    <meta
+      name="description"
+      content="An email verification service used to issue a verifiable credential asserting that you are the owner of an email address."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bcgov_theme.min.css' %}" />
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#">upgrade your browser</a> to improve your experience.
+      </p>
+    <![endif]-->
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <!-- Navbar content -->
+        <div class="container">
+          <a class="navbar-brand" href="/">
+            <img
+              class="img-fluid d-none d-md-block"
+              src="/assets/images/iiw-dog-logo.png"
+              alt="B.C. Government Logo"
+            />
+
+            <img
+              class="img-fluid d-md-none"
+              src="/assets/images/iiw-dog-logo.png"
+              alt="B.C. Government Logo"
+            />
+          </a>
+          <div class="navbar-brand">
+            IIW Issuer Service
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main role="main">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9 col-sm-8">
+            <h1>Connect to our service</h1>
+            <p class="lead">
+              Scan the QR code or click connect from your phone to form a
+              connection with our verification service.
+            </p>
+            <p class="lead">
+              We will first ask for proof of verified email. If you need a
+              verified email credential, you can obtain one here:
+              <a href="https://email-verification.vonx.io" target="_blank"
+                >https://email-verification.vonx.io</a
+              >
+            </p>
+            <img width="200" src="data:image/png;base64, {{ qr_png }}" />
+            <br />
+            <a class="btn btn-primary btn-large" href="{{ streetcred_url }}"
+              >Connect</a
+            >
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="{% static 'js/bcgov_theme.min.js' %}" async defer></script>
+  </body>
+</html>
