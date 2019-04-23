@@ -99,18 +99,19 @@ def attendees_submit(request):
 
         attendee.save()
 
-        # attendance cred def id
-        credential_definition_id = cache.get("credential_definition_id")
-        assert credential_definition_id is not None
+        if approved:
+            # attendance cred def id
+            credential_definition_id = cache.get("credential_definition_id")
+            assert credential_definition_id is not None
 
-        request_body = {
-            "connection_id": str(attendee.connection_id),
-            "credential_definition_id": credential_definition_id,
-        }
+            request_body = {
+                "connection_id": str(attendee.connection_id),
+                "credential_definition_id": credential_definition_id,
+            }
 
-        response = requests.post(
-            f"{AGENT_URL}/credential_exchange/send-offer", json=request_body
-        )
+            response = requests.post(
+                f"{AGENT_URL}/credential_exchange/send-offer", json=request_body
+            )
 
         return HttpResponseRedirect("/backend")
 
