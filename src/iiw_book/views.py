@@ -3,6 +3,7 @@ import io
 import os
 import re
 import json
+from datetime import datetime
 
 import qrcode
 import requests
@@ -20,11 +21,21 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 
+from django.db.utils import IntegrityError
+
+from .models import Attendee
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 AGENT_URL = os.environ.get("AGENT_URL")
+VERIFIED_EMAIL_CRED_DEF_ID = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
+
+if not AGENT_URL:
+    raise Exception("AGENT_URL is not set")
+if not VERIFIED_EMAIL_CRED_DEF_ID:
+    raise Exception("VERIFIED_EMAIL_CRED_DEF_ID is not set")
 
 
 def index(request):
@@ -54,6 +65,58 @@ def invite(request):
     )
 
 
+def backend(request):
+    template = loader.get_template("backend.html")
+    attendees = Attendee.objects.filter(approved=False, denied=False)
+    return HttpResponse(template.render({"attendees": attendees}, request))
+
+
+def backend_denied(request):
+    template = loader.get_template("backend_denied.html")
+    attendees = Attendee.objects.filter(approved=False, denied=True)
+    return HttpResponse(template.render({"attendees": attendees}, request))
+
+
+def backend_approved(request):
+    template = loader.get_template("backend_approved.html")
+    attendees = Attendee.objects.filter(approved=True)
+    return HttpResponse(template.render({"attendees": attendees}, request))
+
+
+def attendees_submit(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        full_name = request.POST.get("full_name")
+        approved = request.POST.get("approve")
+        denied = request.POST.get("deny")
+
+        attendee = Attendee.objects.get(email=email)
+        attendee.full_name = full_name
+        if approved:
+            attendee.approved = True
+        elif denied:
+            attendee.denied = True
+
+        attendee.save()
+
+        # attendance cred def id
+        credential_definition_id = cache.get("credential_definition_id")
+        assert credential_definition_id is not None
+
+        request_body = {
+            "connection_id": str(attendee.connection_id),
+            "credential_definition_id": credential_definition_id,
+        }
+
+        response = requests.post(
+            f"{AGENT_URL}/credential_exchange/send-offer", json=request_body
+        )
+
+        return HttpResponseRedirect("/backend")
+
+    return HttpResponseNotFound()
+
+
 @csrf_exempt
 def webhooks(request, topic):
 
@@ -62,9 +125,7 @@ def webhooks(request, topic):
 
     # Handle new invites, send presentation request
     if topic == "connections" and message["state"] == "response":
-        credential_definition_id = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
         connection_id = message["connection_id"]
-        assert credential_definition_id is not None
         assert connection_id is not None
 
         logger.info(
@@ -72,12 +133,14 @@ def webhooks(request, topic):
         )
 
         request_body = {
+            "name": "BC Gov Verified Email",
+            "version": "1.0.0",
             "requested_predicates": [],
             "requested_attributes": [
                 {
                     "name": "email",
-                    "restrictions": [{"cred_def_id": credential_definition_id}],
-                },
+                    "restrictions": [{"cred_def_id": VERIFIED_EMAIL_CRED_DEF_ID}],
+                }
             ],
             "connection_id": connection_id,
         }
@@ -89,36 +152,64 @@ def webhooks(request, topic):
 
     # TODO: Handle presentation, verify
     if topic == "presentations" and message["state"] == "presentation_received":
-        pass
+        presentation_exchange_id = message["presentation_exchange_id"]
+        assert presentation_exchange_id is not None
+
+        logger.info(
+            f"Verifying presentation for presentation id {message['presentation_exchange_id']}"
+        )
+
+        response = requests.post(
+            f"{AGENT_URL}/presentation_exchange/{presentation_exchange_id}/verify_presentation"
+        )
+
+        logger.info(response.text)
+
+        return HttpResponse()
 
     # Handle verify, save state in db
-    if topic == "presentations" and message["state"] == "request_sent":
-        pass
-    # if topic == "presentations" and message["state"] == "verified":
-        # credential_definition_id = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
-        # connection_id = message["connection_id"]
-        # assert credential_definition_id is not None
-        # assert connection_id is not None
+    if topic == "presentations" and message["state"] == "verified":
+        connection_id = message["connection_id"]
 
-        # logger.info(
-        #     f"Sending presentation request for connection {message['connection_id']}"
-        # )
+        # HACK: we need a better way to pull values out of presentations
+        revealed_attrs = message["presentation"]["requested_proof"]["revealed_attrs"]
+        for revealed_attr in revealed_attrs.values():
+            email = revealed_attr["raw"]
 
-        # request_body = {
-        #     "requested_predicates": [],
-        #     "requested_attributes": [
-        #         {
-        #             "name": "email",
-        #             "restrictions": [{"cred_def_id": credential_definition_id}],
-        #         },
-        #     ],
-        #     "connection_id": connection_id,
-        # }
-        # response = requests.post(
-        #     f"{AGENT_URL}/presentation_exchange/send_request", json=request_body
-        # )
+        attendee = Attendee(connection_id=connection_id, email=email)
 
-        # return HttpResponse()
+        try:
+            attendee.save()
+        except IntegrityError:
+            logger.warn(f"Duplicate email '{email}', ignoring.")
+            return HttpResponse()
+        
+        return HttpResponse()
 
+    # Handle cred request, issue cred
+    if topic == "credentials" and message["state"] == "request_received":
+        credential_exchange_id = message["credential_exchange_id"]
+        connection_id = message["connection_id"]
+
+        logger.info(
+            "Sending credential issue for credential exchange "
+            + f"{credential_exchange_id} and connection {connection_id}"
+        )
+
+        attendee = get_object_or_404(Attendee, connection_id=connection_id)
+        request_body = {
+            "credential_values": {
+                "email": attendee.email,
+                "full_name": attendee.full_name,
+                "time": str(datetime.utcnow()),
+            }
+        }
+
+        response = requests.post(
+            f"{AGENT_URL}/credential_exchange/{credential_exchange_id}/issue",
+            json=request_body,
+        )
+
+        return HttpResponse()
 
     return HttpResponse()

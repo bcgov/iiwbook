@@ -32,3 +32,7 @@ header nav {
   border: none !important;
   color: white !important;
 }
+
+form {
+  margin: 0;
+}
