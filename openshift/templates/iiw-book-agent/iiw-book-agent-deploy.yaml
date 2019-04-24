@@ -117,14 +117,14 @@ objects:
           - containerPort: ${{INDY_AGENT_PORT}}
             protocol: TCP
           readinessProbe:
-            timeoutSeconds: 3
+            timeoutSeconds: 30
             initialDelaySeconds: 3
             httpGet:
               path: "/"
               port: ${{INDY_AGENT_PORT}}
           livenessProbe:
-            timeoutSeconds: 3
-            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            initialDelaySeconds: 300
             httpGet:
               path: "/"
               port: ${{INDY_AGENT_PORT}}
