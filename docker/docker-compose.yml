@@ -11,11 +11,11 @@ services:
         {"reqSignature":{},"txn":{"data":{"data":{"alias":"Node3","blskey":"3WFpdbg7C5cnLYZwFZevJqhubkFALBfCBBok15GdrKMUhUjGsk3jV6QKj6MZgEubF7oqCafxNdkm7eswgA4sdKTRc82tLGzZBd6vNqU8dupzup6uYUf32KTHTPQbuUM8Yk4QFXjEf2Usu2TJcNkdgpyeUSX42u5LqdDDpNSWUK5deC5","client_ip":"52.224.127.162","client_port":9706,"node_ip":"52.224.127.162","node_port":9705,"services":["VALIDATOR"]},"dest":"DKVxG2fXXTU8yT5N7hGEbXB3dfdAnYv1JczDUHpmDxya"},"metadata":{"from":"4cU41vWW82ArfxJxHkzXPG"},"type":"0"},"txnMetadata":{"seqNo":3,"txnId":"7e9f355dffa78ed24668f0e0e369fd8c224076571c51e2ea8be5f26479edebe4"},"ver":"1"}
         {"reqSignature":{},"txn":{"data":{"data":{"alias":"Node4","blskey":"2zN3bHM1m4rLz54MJHYSwvqzPchYp8jkHswveCLAEJVcX6Mm1wHQD1SkPYMzUDTZvWvhuE6VNAkK3KxVeEmsanSmvjVkReDeBEMxeDaayjcZjFGPydyey1qxBHmTvAnBKoPydvuTAqx5f7YNNRAdeLmUi99gERUU7TD8KfAa6MpQ9bw","client_ip":"52.224.127.162","client_port":9708,"node_ip":"52.224.127.162","node_port":9707,"services":["VALIDATOR"]},"dest":"4PS3EDQ3dW1tci1Bp6543CfuuebjFrg36kLAUcskGfaA"},"metadata":{"from":"TWwCRQRZ2ZHMJFn9TzLp7W"},"type":"0"},"txnMetadata":{"seqNo":4,"txnId":"aa5e817d7cc626170eca175822029339a444eb0ee8f0bd20d3b0b76e566fb008"},"ver":"1"}
       SITE_URL: https://c2f9752b.ngrok.io
-      WEBHOOK_URL: http://iiw-service:7000/webhooks
+      WEBHOOK_URL: http://iiw-book-service:8080/webhooks
       AGENT_LABEL: IIW
     build:
       context: ..
-      dockerfile: docker/indy-catalyst-agent/Dockerfile
+      dockerfile: docker/iiw-book-agent/Dockerfile
     ports:
       - "4000:4000"
       - "11000:11000"
@@ -24,7 +24,7 @@ services:
     command: bash -c "icatagent -it http 0.0.0.0 $${AGENT_PORT} -ot http --admin 0.0.0.0 $${ADMIN_PORT} -e \"$${SITE_URL}\" --wallet-type indy --seed \"$${INDY_SEED}\" --genesis-transactions \"$${GENESIS_TRANSACTIONS}\" --label \"$${AGENT_LABEL}\" --accept-invites --accept-requests"
 
   iiw-book-service:
-    image: email-verification-service
+    image: iiw-book-service
     # build:
     #   context: ..
     #   dockerfile: docker/iiw-book-service/Dockerfile
@@ -36,7 +36,7 @@ services:
       PORT: 8080
       VERIFIED_EMAIL_CRED_DEF_ID: Th7MpTaRZVRYnPiabds81Y:3:CL:496:default
       SITE_URL: http://localhost:8080
-      AGENT_URL: "http://iiw-agent:4000"
+      AGENT_URL: "http://iiw-book-agent:4000"
       DEBUG: "true"
       DB_NAME: postgres
       DB_USER: postgres
@@ -44,7 +44,7 @@ services:
       DB_PORT: 5432
       DB_HOST: iiw-book-postgres
       STI_SCRIPTS_PATH: "/usr/libexec/s2i"
-      APP_HOME: "email_verification_service"
+      APP_HOME: "iiw_book_service"
       WEB_CONCURRENCY: 1
     ports:
       - 8080:8080
