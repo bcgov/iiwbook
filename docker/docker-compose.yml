@@ -1,6 +1,6 @@
 version: "3"
 services:
-  iiw-agent:
+  iiw-book-agent:
     environment:
       ADMIN_PORT: 4000
       AGENT_PORT: 11000
@@ -13,7 +13,6 @@ services:
       SITE_URL: https://c2f9752b.ngrok.io
       WEBHOOK_URL: http://iiw-service:7000/webhooks
       AGENT_LABEL: IIW
-      DATABASE_URL: postgres
     build:
       context: ..
       dockerfile: docker/indy-catalyst-agent/Dockerfile
@@ -24,32 +23,41 @@ services:
     # - icatagent:/home/indy/.indy_client/wallet
     command: bash -c "icatagent -it http 0.0.0.0 $${AGENT_PORT} -ot http --admin 0.0.0.0 $${ADMIN_PORT} -e \"$${SITE_URL}\" --wallet-type indy --seed \"$${INDY_SEED}\" --genesis-transactions \"$${GENESIS_TRANSACTIONS}\" --label \"$${AGENT_LABEL}\" --accept-invites --accept-requests"
 
-  iiw-service:
+  iiw-book-service:
+    image: email-verification-service
+    # build:
+    #   context: ..
+    #   dockerfile: docker/iiw-book-service/Dockerfile
+    # working_dir: /app
     depends_on:
-      - iiw-postgres
-      - iiw-agent
+      - iiw-book-postgres
+      - iiw-book-agent
     environment:
-      PORT: 7000
+      PORT: 8080
       VERIFIED_EMAIL_CRED_DEF_ID: Th7MpTaRZVRYnPiabds81Y:3:CL:496:default
-      SITE_URL: http://localhost:7000
+      SITE_URL: http://localhost:8080
       AGENT_URL: "http://iiw-agent:4000"
       DEBUG: "true"
       DB_NAME: postgres
       DB_USER: postgres
       DB_PASSWORD: password
       DB_PORT: 5432
-      DB_HOST: iiw-postgres
-    build:
-      context: ..
-      dockerfile: docker/iiw-book-service/Dockerfile
-    working_dir: /app
+      DB_HOST: iiw-book-postgres
+      STI_SCRIPTS_PATH: "/usr/libexec/s2i"
+      APP_HOME: "email_verification_service"
+      WEB_CONCURRENCY: 1
     ports:
-      - 7000:7000
-    command: bash -c "sleep 5 && ./manage.py createcachetable && ./manage.py makemigrations &&./manage.py migrate && ./manage.py runserver 0.0.0.0:$${PORT}"
+      - 8080:8080
+    # command: bash -c "sleep 5 && ./manage.py createcachetable && ./manage.py makemigrations &&./manage.py migrate && ./manage.py runserver 0.0.0.0:$${PORT}"
+    command: >
+        bash -c "
+        echo waiting for iiw-book-agent ...;
+        sleep 5;
+        $${STI_SCRIPTS_PATH}/run;"
     volumes:
       - ../src:/app
 
-  iiw-postgres:
+  iiw-book-postgres:
     restart: always
     image: postgres:latest
     volumes:
