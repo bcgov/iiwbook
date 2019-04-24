@@ -44,7 +44,7 @@ services:
       DB_PORT: 5432
       DB_HOST: iiw-book-postgres
       STI_SCRIPTS_PATH: "/usr/libexec/s2i"
-      APP_HOME: "iiw_book_service"
+      APP_MODULE: "iiw_book_service.wsgi"
       WEB_CONCURRENCY: 1
     ports:
       - 8080:8080
