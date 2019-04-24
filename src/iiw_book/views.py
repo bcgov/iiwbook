@@ -9,14 +9,8 @@ import qrcode
 import requests
 
 
-from django.http import (
-    HttpResponse,
-    HttpResponseRedirect,
-    HttpResponseNotFound,
-    HttpResponseBadRequest,
-)
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
-from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
@@ -46,21 +40,27 @@ def index(request):
 def invite(request):
     response = requests.post(f"{AGENT_URL}/connections/create-invitation")
     invite = response.json()
+    invitation_url = invite["invitation_url"]
 
     streetcred_url = re.sub(
-        r"^https?:\/\/\S*\?", "id.streetcred://invite?", invite["invitation_url"]
+        r"^https?:\/\/\S*\?", "id.streetcred://invite?", invitation_url
     )
 
     template = loader.get_template("invite.html")
 
     stream = io.BytesIO()
-    qr_png = qrcode.make(invite["invitation_url"])
+    qr_png = qrcode.make(invitation_url)
     qr_png.save(stream, "PNG")
     qr_png_b64 = base64.b64encode(stream.getvalue()).decode("utf-8")
 
     return HttpResponse(
         template.render(
-            {"qr_png": qr_png_b64, "streetcred_url": streetcred_url}, request
+            {
+                "qr_png": qr_png_b64,
+                "streetcred_url": streetcred_url,
+                "invitation_url": invitation_url,
+            },
+            request,
         )
     )
 
@@ -122,7 +122,7 @@ def attendees_submit(request):
 def webhooks(request, topic):
 
     message = json.loads(request.body)
-    logger.info(f"webhook recieved - topic: {topic} body: {request.body}")
+    logger.info(f"webhook received - topic: {topic} body: {request.body}")
 
     # Handle new invites, send presentation request
     if topic == "connections" and message["state"] == "response":
@@ -184,7 +184,7 @@ def webhooks(request, topic):
         except IntegrityError:
             logger.warn(f"Duplicate email '{email}', ignoring.")
             return HttpResponse()
-        
+
         return HttpResponse()
 
     # Handle cred request, issue cred
@@ -213,4 +213,215 @@ def webhooks(request, topic):
 
         return HttpResponse()
 
+    # Handle menu request
+    if topic == "get-active-menu":
+        connection_id = message["connection_id"]
+        thread_id = message["thread_id"]
+        logger.info("Returning action menu to %s", connection_id)
+        message = render_menu(thread_id)
+        if message:
+            request_body = {"menu": message}
+            logger.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
+            logger.info(request_body)
+            response = requests.post(
+                f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
+            )
+
+        return HttpResponse()
+
+    # Handle menu perform action
+    if topic == "perform-menu-action":
+        connection_id = message["connection_id"]
+        thread_id = message["thread_id"]
+        action_name = message["action_name"]
+        action_params = message.get("action_params") or {}
+        logger.info("Performing action menu action %s %s", action_name, connection_id)
+        message = perform_menu_action(
+            action_name, action_params, connection_id, thread_id
+        )
+        if message:
+            request_body = {"menu": message}
+            logger.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
+            logger.info(request_body)
+            response = requests.post(
+                f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
+            )
+
+        return HttpResponse()
+
     return HttpResponse()
+
+
+def render_menu(thread_id: str) -> dict:
+    """
+    Render the current menu.
+
+    Args:
+        thread_id: The thread identifier from the requesting message.
+    """
+    search_form = {
+        "title": "Search introductions",
+        "description": "Enter an attendee name below to perform a search.",
+        "submit-label": "Search",
+        "params": [{"name": "query", "title": "Attendee name", "required": True}],
+    }
+    message = {
+        "title": "Welcome to IIWBook",
+        "description": "IIWBook facilitates connections between attendees by "
+        + "verifying attendance and distributing connection invitations.",
+        "options": [
+            dict(
+                name="search-intros",
+                title="Search introductions",
+                description="Filter attendee records to make a connection",
+                form=search_form,
+            )
+        ],
+    }
+    if thread_id:
+        message["~thread"] = {"thid": thread_id}
+    return message
+
+
+TEST_INTROS = [
+    {
+        "name": "info;bob",
+        "title": "Bob Terwilliger",
+        "description": "The Krusty the Clown Show",
+    },
+    {"name": "info;ananse", "title": "Kwaku Ananse", "description": "Ghana"},
+    {"name": "info;megatron", "title": "Megatron", "description": "Cybertron"},
+]
+USE_TEST_INTROS = False
+
+
+def find_attendees(query: str):
+    options = []
+    if USE_TEST_INTROS:
+        for row in TEST_INTROS:
+            if (
+                not query
+                or query in row["name"].lower()
+                or query in row["description"].lower()
+            ):
+                options.append(dict(**row))
+    else:
+        attends = Attendee.objects.filter(approved=True, full_name__contains=query)
+        for record in attends:
+            options.append(
+                {"name": f"info;{record.connection_id}", "title": record.full_name}
+            )
+    return options
+
+
+def get_attendee(attend_id: str):
+    if USE_TEST_INTROS:
+        for row in TEST_INTROS:
+            if row["name"] == f"info;{attend_id}":
+                return row
+    else:
+        records = Attendee.objects.filter(approved=True, connection_id=attend_id)
+        for record in records:
+            return {"name": f"info;{record.connection_id}", "title": record.full_name}
+
+
+def perform_menu_action(
+    action_name: str, action_params: dict, connection_id: str, thread_id: str = None
+) -> dict:
+    """
+    Perform an action defined by the active menu.
+
+    Args:
+        action_name: The unique name of the action being performed
+        action_params: A collection of parameters for the action
+        thread_id: The thread identifier from the requesting message.
+    """
+
+    return_option = dict(name="index", title="Back", description="Return to options")
+
+    if action_name == "index":
+        return render_menu(thread_id)
+
+    elif action_name == "search-intros":
+        logger.debug("search intros %s", action_params)
+        query = action_params.get("query", "").lower()
+        options = find_attendees(query)
+        if not options:
+            return dict(
+                title="Search results",
+                description="No attendees were found matching your query.",
+                options=[return_option],
+            )
+        return dict(
+            title="Search results",
+            description="The following attendees were found matching your query.",
+            options=options,
+        )
+
+    elif action_name.startswith("info;"):
+        attend_id = action_name[5:]
+        found = get_attendee(attend_id)
+        if found:
+            request_form = {
+                "title": "Request an introduction",
+                "description": "Ask to connect with this user.",
+                "submit-label": "Send Request",
+                "params": [dict(name="comments", title="Comments")],
+            }
+            return dict(
+                title=found["title"],
+                description=found["description"],
+                options=[
+                    dict(
+                        name=f"request;{attend_id}",
+                        title="Request an introduction",
+                        description="Ask to connect with this user",
+                        form=request_form,
+                    ),
+                    dict(name="index", title="Back", description="Return to options"),
+                ],
+            )
+        return dict(
+            title="Attendee not found",
+            description="The attendee could not be located.",
+            options=[return_option],
+        )
+
+    elif action_name.startswith("request;"):
+        attend_id = action_name[8:]
+        logger.info("requested intro to %s", attend_id)
+        found = get_attendee(attend_id)
+        if found:
+            if USE_TEST_INTROS:
+                # invite self
+                logger.info("test self-introduction")
+                logger.info(
+                    f"{AGENT_URL}/connections/{connection_id}/start-introduction"
+                )
+                response = requests.post(
+                    f"{AGENT_URL}/connections/{connection_id}/start-introduction",
+                    params={
+                        "target_connection_id": connection_id,
+                        "message": action_params.get("comments"),
+                    },
+                )
+            else:
+                # send introduction proposal to user and ..
+                response = requests.post(
+                    f"{AGENT_URL}/connections/{connection_id}/start-introduction",
+                    data={
+                        "target_connection_id": attend_id,
+                        "message": action_params.get("comments"),
+                    },
+                )
+
+            return dict(
+                title="Request sent to {}".format(found["title"]),
+                description="""Your request for an introduction has been received,
+                    and IIWBook will now ask the attendee for a connection
+                    invitation. Once received by IIWBook this invitation will be
+                    forwarded to your agent.""",
+                options=[
+                    dict(name="index", title="Done", description="Return to options")
+                ],
+            )
