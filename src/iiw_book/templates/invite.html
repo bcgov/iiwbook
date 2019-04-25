@@ -78,18 +78,6 @@
 					>
 					<br />
 					<input type="text" readonly="readonly" size="40" id="invitation-url" class="form-control mt-4" value="{{ invitation_url }}">
-					<!-- copyInvite () {
-			var self = this;
-			var invite = document.getElementById('invitation-url');
-			if(invite) {
-				invite.focus();
-				invite.select();
-				var result = document.execCommand('copy');
-				if(result === 'unsuccessful') {
-					console.error('Failed to copy invitation.');
-				}
-			}
-		}, -->
 					<button type="button" class="btn btn-primary btn-lg mt-2"
 					  onclick="var invite = document.getElementById('invitation-url'); if(invite) { invite.focus(); invite.select(); document.execCommand('copy'); }"
 					  ><span class="fa fa-clipboard"></span> Copy Invitation</button>
