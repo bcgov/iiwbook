@@ -93,6 +93,14 @@ objects:
             value: ${DATABASE_PORT}
           - name: DB_HOST
             value: ${DATABASE_SERVICE_NAME}
+          - name: EMAIL_HOST
+            value: ${EMAIL_HOST}
+          - name: EMAIL_PORT
+            value: ${EMAIL_PORT}
+          - name: EMAIL_USE_SSL
+            value: ${EMAIL_USE_SSL}
+          - name: STAFF_EMAILS
+            value: ${STAFF_EMAILS}
           - name: APP_MODULE
             value: ${APP_MODULE}
           - name: APP_CONFIG
@@ -219,6 +227,22 @@ parameters:
   displayName: Database Service Name
   required: true
   value: iiw-book-postgres
+- name: EMAIL_HOST
+  displayName: Email Host Name
+  required: true
+  value: smtp.host
+- name: EMAIL_PORT
+  displayName: Email Port
+  required: true
+  value: "25"
+- name: EMAIL_USE_SSL
+  displayName: Email Use SSL
+  required: true
+  value: "false"
+- name: STAFF_EMAILS
+  displayName: Emails to send notifications to
+  required: true
+  value: "nick@lucent.is,swcurran@cloudcompass.ca"
 - name: CPU_REQUEST
   displayName: Resources CPU Request
   description: The resources CPU request (in cores) for this build.
