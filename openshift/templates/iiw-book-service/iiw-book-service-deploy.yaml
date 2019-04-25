@@ -191,7 +191,7 @@ parameters:
   displayName: Verified eMail Credential Definition Id
   description: Verified eMail Credential Definition Id.
   required: true
-  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:618:default"
+  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:621:default"
 - name: SITE_URL
   displayName: Site URL
   description: The URL for the site
