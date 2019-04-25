@@ -177,13 +177,13 @@ def webhooks(request, topic):
         for revealed_attr in revealed_attrs.values():
             email = revealed_attr["raw"]
 
-        attendee = Attendee(connection_id=connection_id, email=email)
+        attendee, created = Attendee.objects.get_or_create(email=email)
 
-        try:
+        if created:
+            attendee.connection_id = connection_id
+            attendee.approved = False
+            attendee.denied = False
             attendee.save()
-        except IntegrityError:
-            logger.warn(f"Duplicate email '{email}', ignoring.")
-            return HttpResponse()
 
         return HttpResponse()
 
