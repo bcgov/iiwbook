@@ -181,7 +181,10 @@ def webhooks(request, topic):
         for revealed_attr in revealed_attrs.values():
             email = revealed_attr["raw"]
 
-        attendee, _ = Attendee.objects.get_or_create(email=email)
+        try:
+            attendee = Attendee.objects.get(email=email)
+        except Attendee.DoesNotExist:
+            attendee = Attendee(email=email)
         attendee.connection_id = connection_id
         attendee.approved = False
         attendee.denied = False
@@ -211,7 +214,7 @@ def webhooks(request, topic):
         credential_exchange_id = message["credential_exchange_id"]
         connection_id = message["connection_id"]
         assert connection_id is not None
-        
+
         logger.info(
             "Sending credential issue for credential exchange "
             + f"{credential_exchange_id} and connection {connection_id}"
