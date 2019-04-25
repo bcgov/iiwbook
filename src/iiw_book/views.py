@@ -177,13 +177,12 @@ def webhooks(request, topic):
         for revealed_attr in revealed_attrs.values():
             email = revealed_attr["raw"]
 
-        attendee, created = Attendee.objects.get_or_create(email=email)
+        attendee, _ = Attendee.objects.get_or_create(email=email)
+        attendee.connection_id = connection_id
+        attendee.approved = False
+        attendee.denied = False
 
-        if created:
-            attendee.connection_id = connection_id
-            attendee.approved = False
-            attendee.denied = False
-            attendee.save()
+        attendee.save()
 
         return HttpResponse()
 
