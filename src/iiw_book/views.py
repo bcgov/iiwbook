@@ -186,9 +186,13 @@ def webhooks(request, topic):
         attendee.denied = False
         attendee.save()
 
+        pending_count = Attendee.objects.filter(approved=False, denied=False).count()
+        total_count = Attendee.objects.count()
 
         template = loader.get_template("email.html")
-        email_html = template.render({}, request)
+        email_html = template.render(
+            {"pending_count": pending_count, "total_count": total_count}, request
+        )
 
         send_mail(
             "New attendee connection",
