@@ -192,7 +192,7 @@ parameters:
   displayName: Application Hostname
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
-  value: iiw-book-agent.vonx.io
+  value: iiwbook-agent.vonx.io
 - name: IMAGE_NAMESPACE
   displayName: Namespace containing application images.
   required: true
@@ -221,7 +221,7 @@ parameters:
   displayName: Site URL
   description: The URL for the site
   required: true
-  value: https://iiw-book-agent.vonx.io
+  value: https://iiwbook-agent.vonx.io
 - name: WEBHOOK_URL
   displayName: Webhook URL
   description: The webhook endpoint
