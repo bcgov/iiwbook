@@ -174,6 +174,7 @@ def webhooks(request, topic):
     # Handle verify, save state in db
     if topic == "presentations" and message["state"] == "verified":
         connection_id = message["connection_id"]
+        assert connection_id is not None
 
         # HACK: we need a better way to pull values out of presentations
         revealed_attrs = message["presentation"]["requested_proof"]["revealed_attrs"]
@@ -209,7 +210,8 @@ def webhooks(request, topic):
     if topic == "credentials" and message["state"] == "request_received":
         credential_exchange_id = message["credential_exchange_id"]
         connection_id = message["connection_id"]
-
+        assert connection_id is not None
+        
         logger.info(
             "Sending credential issue for credential exchange "
             + f"{credential_exchange_id} and connection {connection_id}"
