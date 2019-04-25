@@ -12,6 +12,7 @@ import requests
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 
@@ -25,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 AGENT_URL = os.environ.get("AGENT_URL")
 VERIFIED_EMAIL_CRED_DEF_ID = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
+STAFF_EMAILS = os.environ.get("STAFF_EMAILS")
+
 
 if not AGENT_URL:
     raise Exception("AGENT_URL is not set")
@@ -181,8 +184,24 @@ def webhooks(request, topic):
         attendee.connection_id = connection_id
         attendee.approved = False
         attendee.denied = False
-
         attendee.save()
+
+        pending_count = Attendee.objects.filter(approved=False, denied=False).count()
+        total_count = Attendee.objects.count()
+
+        template = loader.get_template("email.html")
+        email_html = template.render(
+            {"pending_count": pending_count, "total_count": total_count}, request
+        )
+
+        send_mail(
+            "New attendee connection",
+            f"Go here to approve or deny this attendee: https://iiwbook.vonx.io/backend",
+            "noreply@gov.bc.ca",
+            STAFF_EMAILS.split(","),
+            fail_silently=False,
+            html_message=email_html,
+        )
 
         return HttpResponse()
 
