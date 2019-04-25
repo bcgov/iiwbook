@@ -47,7 +47,7 @@ services:
       APP_MODULE: "iiw_book_service.wsgi"
       WEB_CONCURRENCY: 1
     ports:
-      - 8080:8080
+      - 8080:7070
     # command: bash -c "sleep 5 && ./manage.py createcachetable && ./manage.py makemigrations &&./manage.py migrate && ./manage.py runserver 0.0.0.0:$${PORT}"
     command: >
         bash -c "
