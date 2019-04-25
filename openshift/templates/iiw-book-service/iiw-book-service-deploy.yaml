@@ -95,6 +95,8 @@ objects:
             value: ${DATABASE_SERVICE_NAME}
           - name: APP_MODULE
             value: ${APP_MODULE}
+          - name: APP_CONFIG
+            value: ${APP_CONFIG}
           - name: WEB_CONCURRENCY
             value: ${WEB_CONCURRENCY}
           image: " "
@@ -170,6 +172,11 @@ parameters:
   description: Used to run the application with Gunicorn.
   required: true
   value: iiw_book_service.wsgi
+- name: APP_CONFIG
+  displayName: Gunicorn Config File
+  description: option to be passed to gunicorn -c
+  required: false
+  value: python:iiw_book_service.settings
 - name: WEB_CONCURRENCY
   displayName: Web Concurrency
   description: Controls/overrides the number of Gunicorn workers.  This MUST be set to 1 when using a SQLite wallet.
@@ -184,7 +191,7 @@ parameters:
   displayName: Verified eMail Credential Definition Id
   description: Verified eMail Credential Definition Id.
   required: true
-  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:618:default"
+  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:621:default"
 - name: SITE_URL
   displayName: Site URL
   description: The URL for the site
