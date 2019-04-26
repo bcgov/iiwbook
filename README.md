@@ -15,4 +15,4 @@ Install [ngrok](https://ngrok.com).
 1. In the `docker` directory run;
      1. `manage build` and `manage up`.  *Refer to `manage -h` for additional usage information.*
 
-Then visit [http://localhost:8080](http://localhost:8080) to see the app running
+Then visit [http://localhost:7070](http://localhost:8080) to see the app running

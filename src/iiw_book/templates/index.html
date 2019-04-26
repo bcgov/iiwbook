@@ -11,10 +11,10 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
-    <title>IIW Attendance Issuer</title>
+    <title>IIWBook Attendance Issuer</title>
     <meta
       name="description"
-      content="An email verification service used to issue a verifiable credential asserting that you are the owner of an email address."
+      content="A verification service used to issue a verifiable credential asserting a requester is an IIW 28 Attendee based on their verified email address."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -36,17 +36,17 @@
             <img
               class="img-fluid d-none d-md-block"
               src="/assets/images/iiw-dog-logo.png"
-              alt="B.C. Government Logo"
+              alt="IIW Dog Logo"
             />
 
             <img
               class="img-fluid d-md-none"
               src="/assets/images/iiw-dog-logo.png"
-              alt="B.C. Government Logo"
+              alt="IIW Dog Logo"
             />
           </a>
           <div class="navbar-brand">
-            IIW Issuer Service
+            IIWBook
           </div>
         </div>
       </nav>
@@ -55,21 +55,34 @@
       <div class="container">
         <div class="row">
           <div class="col-md-9 col-sm-8">
-            <h1>IIW Issuer Service</h1>
+            <h1>Welcome to IIWBook!</h1>
             <p class="lead">
-              Use this service to obtain a IIW attendance credential. Click the
-              button below to receive an invitation to connect to our agent.
+              IIWBook is an authorization service that issues to requesting IIW Attendees a
+              Hyperledger Indy-style Verifiable Credential that attests to their
+              attendance at IIW 28. This is part of a demonstration of Self Sovereign
+              Identity in action presented by the Government of British Columbia and IIW.
             </p>
             <p class="lead">
-              We will first ask for proof of verified email. If you need a
-              verified email credential, you can obtain one here:
+              Need more information before proceeding? Learn more about this
+              demonstration at https://iiw.vonx.io.
+              <a href="https://iiw.vonx.io" target="_blank"
+                >https://iiw.vonx.io</a
+              >
+            </p>
+            <p class="lead">
+              Ready to go? Click the button below to connect your Indy agent to
+              IIWBook and get your Verifiable Credential - if you meet the criteria.
+            </p>
+            <p class="lead">
+              IIW needs a proof of your having verified email address credential. If you need such
+              credential, you can obtain one here: 
               <a href="https://email-verification.vonx.io" target="_blank"
                 >https://email-verification.vonx.io</a
               >
             </p>
           </div>
         </div>
-        <a href="/get-invite" class="btn btn-primary btn-lg">Get Invitation</a>
+        <a href="/get-invite" class="btn btn-primary btn-lg">Connect to IIWBook</a>
       </div>
     </main>
 
