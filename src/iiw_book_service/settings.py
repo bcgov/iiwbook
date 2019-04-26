@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
 ]
 
 MIDDLEWARE = [
@@ -170,8 +169,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATIC_URL = "/assets/"
-STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "assets"),)
 STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ["assets"]))
+STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "assets"),)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
@@ -179,6 +178,7 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL") == "true"
 
+LOGOUT_REDIRECT_URL = 'index'
 
 # Gunicorn options
 timeout = 300
