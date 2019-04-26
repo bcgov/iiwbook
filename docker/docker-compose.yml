@@ -66,8 +66,8 @@ services:
     image: postgres:latest
     volumes:
       - /var/lib/postgresql
-    # ports:
-    # - "5432:5432"
+    ports:
+    - "5432:5432"
     environment:
       # POSTGRES_DB: app
       # POSTGRES_USER: user
