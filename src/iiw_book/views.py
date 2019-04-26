@@ -199,9 +199,9 @@ def webhooks(request, topic):
         )
 
         send_mail(
-            "New attendee connection",
+            "New IIWBook Verification Request",
             f"Go here to approve or deny this attendee: https://iiwbook.vonx.io/backend",
-            "noreply@gov.bc.ca",
+            "IIWBook <noreply@gov.bc.ca>",
             STAFF_EMAILS.split(","),
             fail_silently=False,
             html_message=email_html,
