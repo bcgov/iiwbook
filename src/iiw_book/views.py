@@ -16,13 +16,11 @@ from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 
-from django.db.utils import IntegrityError
-
 from .models import Attendee
 
 import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 AGENT_URL = os.environ.get("AGENT_URL")
 VERIFIED_EMAIL_CRED_DEF_ID = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
@@ -128,14 +126,14 @@ def attendees_submit(request):
 def webhooks(request, topic):
 
     message = json.loads(request.body)
-    logger.info(f"webhook received - topic: {topic} body: {request.body}")
+    LOGGER.info(f"webhook received - topic: {topic} body: {request.body}")
 
     # Handle new invites, send presentation request
     if topic == "connections" and message["state"] == "response":
         connection_id = message["connection_id"]
         assert connection_id is not None
 
-        logger.info(
+        LOGGER.info(
             f"Sending presentation request for connection {message['connection_id']}"
         )
 
@@ -162,7 +160,7 @@ def webhooks(request, topic):
         presentation_exchange_id = message["presentation_exchange_id"]
         assert presentation_exchange_id is not None
 
-        logger.info(
+        LOGGER.info(
             f"Verifying presentation for presentation id {message['presentation_exchange_id']}"
         )
 
@@ -170,7 +168,7 @@ def webhooks(request, topic):
             f"{AGENT_URL}/presentation_exchange/{presentation_exchange_id}/verify_presentation"
         )
 
-        logger.info(response.text)
+        LOGGER.info(response.text)
 
         return HttpResponse()
 
@@ -218,7 +216,7 @@ def webhooks(request, topic):
         connection_id = message["connection_id"]
         assert connection_id is not None
 
-        logger.info(
+        LOGGER.info(
             "Sending credential issue for credential exchange "
             + f"{credential_exchange_id} and connection {connection_id}"
         )
@@ -243,12 +241,12 @@ def webhooks(request, topic):
     if topic == "get-active-menu":
         connection_id = message["connection_id"]
         thread_id = message["thread_id"]
-        logger.info("Returning action menu to %s", connection_id)
+        LOGGER.info("Returning action menu to %s", connection_id)
         message = render_menu(thread_id)
         if message:
             request_body = {"menu": message}
-            logger.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
-            logger.info(request_body)
+            LOGGER.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
+            LOGGER.info(request_body)
             response = requests.post(
                 f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
             )
@@ -261,14 +259,14 @@ def webhooks(request, topic):
         thread_id = message["thread_id"]
         action_name = message["action_name"]
         action_params = message.get("action_params") or {}
-        logger.info("Performing action menu action %s %s", action_name, connection_id)
+        LOGGER.info("Performing action menu action %s %s", action_name, connection_id)
         message = perform_menu_action(
             action_name, action_params, connection_id, thread_id
         )
         if message:
             request_body = {"menu": message}
-            logger.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
-            logger.info(request_body)
+            LOGGER.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
+            LOGGER.info(request_body)
             response = requests.post(
                 f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
             )
@@ -332,10 +330,16 @@ def find_attendees(query: str):
             ):
                 options.append(dict(**row))
     else:
-        attends = Attendee.objects.filter(approved=True, full_name__contains=query)
+        attends = Attendee.objects.filter(
+            approved=True, full_name__contains=query
+        ).order_by("full_name", "email")
         for record in attends:
             options.append(
-                {"name": f"info;{record.connection_id}", "title": record.full_name}
+                {
+                    "name": f"info;{record.connection_id}",
+                    "title": record.full_name,
+                    "description": record.email,
+                }
             )
     return options
 
@@ -344,11 +348,15 @@ def get_attendee(attend_id: str):
     if USE_TEST_INTROS:
         for row in TEST_INTROS:
             if row["name"] == f"info;{attend_id}":
-                return row
+                return row.copy()
     else:
         records = Attendee.objects.filter(approved=True, connection_id=attend_id)
         for record in records:
-            return {"name": f"info;{record.connection_id}", "title": record.full_name}
+            return {
+                "name": f"info;{record.connection_id}",
+                "title": record.full_name,
+                "description": record.email,
+            }
 
 
 def perform_menu_action(
@@ -369,7 +377,7 @@ def perform_menu_action(
         return render_menu(thread_id)
 
     elif action_name == "search-intros":
-        logger.debug("search intros %s", action_params)
+        LOGGER.info("search intros %s", action_params)
         query = action_params.get("query", "").lower()
         options = find_attendees(query)
         if not options:
@@ -415,13 +423,13 @@ def perform_menu_action(
 
     elif action_name.startswith("request;"):
         attend_id = action_name[8:]
-        logger.info("requested intro to %s", attend_id)
+        LOGGER.info("requested intro to %s", attend_id)
         found = get_attendee(attend_id)
         if found:
             if USE_TEST_INTROS:
                 # invite self
-                logger.info("test self-introduction")
-                logger.info(
+                LOGGER.info("test self-introduction")
+                LOGGER.info(
                     f"{AGENT_URL}/connections/{connection_id}/start-introduction"
                 )
                 response = requests.post(
@@ -451,3 +459,6 @@ def perform_menu_action(
                     dict(name="index", title="Done", description="Return to options")
                 ],
             )
+
+    else:
+        LOGGER.info(f"Unsupported menu action: {action_name}")
