@@ -242,7 +242,7 @@ def webhooks(request, topic):
         connection_id = message["connection_id"]
         thread_id = message["thread_id"]
         LOGGER.info("Returning action menu to %s", connection_id)
-        message = render_menu(thread_id)
+        message = render_menu(connection_id, thread_id)
         if message:
             request_body = {"menu": message}
             LOGGER.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
@@ -276,34 +276,60 @@ def webhooks(request, topic):
     return HttpResponse()
 
 
-def render_menu(thread_id: str) -> dict:
+def is_approved(connection_id: str) -> bool:
+    if USE_TEST_INTROS:
+        return True
+    try:
+        attendee = Attendee.objects.get(approved=True, connection_id=connection_id)
+        return True
+    except Attendee.DoesNotExist:
+        return False
+
+
+def render_menu(connection_id: str, thread_id: str) -> dict:
     """
     Render the current menu.
 
     Args:
+        connection_id: The connection identifier from the requesting message.
         thread_id: The thread identifier from the requesting message.
     """
+
+    message = {
+        "title": "Welcome to IIWBook",
+        "description": "IIWBook facilitates connections between attendees by "
+        + "verifying attendance and distributing connection invitations.",
+        "options": [],
+    }
+    if thread_id:
+        message["~thread"] = {"thid": thread_id}
+
+    if not is_approved(connection_id):
+        message["options"].append(
+            dict(
+                name="search-intros",
+                title="Search introductions",
+                description="Please submit your email address proof and await approval.",
+                disabled=True,
+            )
+        )
+        return message
+
     search_form = {
         "title": "Search introductions",
         "description": "Enter an attendee name below to perform a search.",
         "submit-label": "Search",
         "params": [{"name": "query", "title": "Attendee name", "required": True}],
     }
-    message = {
-        "title": "Welcome to IIWBook",
-        "description": "IIWBook facilitates connections between attendees by "
-        + "verifying attendance and distributing connection invitations.",
-        "options": [
-            dict(
-                name="search-intros",
-                title="Search introductions",
-                description="Filter attendee records to make a connection",
-                form=search_form,
-            )
-        ],
-    }
-    if thread_id:
-        message["~thread"] = {"thid": thread_id}
+    message["options"].append(
+        dict(
+            name="search-intros",
+            title="Search introductions",
+            description="Filter attendee records to make a connection",
+            form=search_form,
+        )
+    )
+
     return message
 
 
@@ -350,13 +376,15 @@ def get_attendee(attend_id: str):
             if row["name"] == f"info;{attend_id}":
                 return row.copy()
     else:
-        records = Attendee.objects.filter(approved=True, connection_id=attend_id)
-        for record in records:
+        try:
+            record = Attendee.objects.get(approved=True, connection_id=attend_id)
             return {
                 "name": f"info;{record.connection_id}",
                 "title": record.full_name,
                 "description": record.email,
             }
+        except Attendee.DoesNotExist:
+            return
 
 
 def perform_menu_action(
@@ -374,10 +402,12 @@ def perform_menu_action(
     return_option = dict(name="index", title="Back", description="Return to options")
 
     if action_name == "index":
-        return render_menu(thread_id)
+        return render_menu(connection_id, thread_id)
 
     elif action_name == "search-intros":
         LOGGER.info("search intros %s", action_params)
+        if not is_approved(connection_id):
+            return
         query = action_params.get("query", "").lower()
         options = find_attendees(query)
         if not options:
@@ -393,6 +423,8 @@ def perform_menu_action(
         )
 
     elif action_name.startswith("info;"):
+        if not is_approved(connection_id):
+            return
         attend_id = action_name[5:]
         found = get_attendee(attend_id)
         if found:
@@ -422,6 +454,8 @@ def perform_menu_action(
         )
 
     elif action_name.startswith("request;"):
+        if not is_approved(connection_id):
+            return
         attend_id = action_name[8:]
         LOGGER.info("requested intro to %s", attend_id)
         found = get_attendee(attend_id)
