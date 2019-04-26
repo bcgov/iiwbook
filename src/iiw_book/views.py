@@ -8,7 +8,7 @@ from datetime import datetime
 import qrcode
 import requests
 
-
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.shortcuts import get_object_or_404
@@ -68,18 +68,21 @@ def invite(request):
     )
 
 
+@login_required
 def backend(request):
     template = loader.get_template("backend.html")
     attendees = Attendee.objects.filter(approved=False, denied=False)
     return HttpResponse(template.render({"attendees": attendees}, request))
 
 
+@login_required
 def backend_denied(request):
     template = loader.get_template("backend_denied.html")
     attendees = Attendee.objects.filter(approved=False, denied=True)
     return HttpResponse(template.render({"attendees": attendees}, request))
 
 
+@login_required
 def backend_approved(request):
     template = loader.get_template("backend_approved.html")
     attendees = Attendee.objects.filter(approved=True)
