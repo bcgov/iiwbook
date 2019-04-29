@@ -477,7 +477,7 @@ def perform_menu_action(
                 # send introduction proposal to user and ..
                 response = requests.post(
                     f"{AGENT_URL}/connections/{connection_id}/start-introduction",
-                    data={
+                    params={
                         "target_connection_id": attend_id,
                         "message": action_params.get("comments"),
                     },
