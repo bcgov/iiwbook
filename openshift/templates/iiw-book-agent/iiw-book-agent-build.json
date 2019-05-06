@@ -46,6 +46,7 @@
         "strategy": {
           "type": "Docker",
           "dockerStrategy": {
+            "noCache": "${{NO_CACHE}}",
             "dockerfilePath": "${DOCKER_FILE_PATH}"
           }
         },
@@ -100,6 +101,13 @@
       "description": "The path to the docker file defining the build.",
       "required": false,
       "value": "./docker/iiw-book-agent/Dockerfile"
+    },
+    {
+      "name": "NO_CACHE",
+      "displayName": "No Cache",
+      "description": "Controls the docker build noCache setting.",
+      "required": false,
+      "value": "true"
     },
     {
       "name": "OUTPUT_IMAGE_TAG",
