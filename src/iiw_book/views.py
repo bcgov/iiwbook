@@ -23,14 +23,14 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 AGENT_URL = os.environ.get("AGENT_URL")
-VERIFIED_EMAIL_CRED_DEF_ID = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
+INDY_EMAIL_VERIFIER_DID = os.environ.get("INDY_EMAIL_VERIFIER_DID")
 STAFF_EMAILS = os.environ.get("STAFF_EMAILS")
 
 
 if not AGENT_URL:
     raise Exception("AGENT_URL is not set")
-if not VERIFIED_EMAIL_CRED_DEF_ID:
-    raise Exception("VERIFIED_EMAIL_CRED_DEF_ID is not set")
+if not INDY_EMAIL_VERIFIER_DID:
+    raise Exception("INDY_EMAIL_VERIFIER_DID is not set")
 
 
 def index(request):
@@ -144,7 +144,12 @@ def webhooks(request, topic):
             "requested_attributes": [
                 {
                     "name": "email",
-                    "restrictions": [{"cred_def_id": VERIFIED_EMAIL_CRED_DEF_ID}],
+                    "restrictions": [
+                        {
+                            "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                            "schema_name": "verified-email",
+                        }
+                    ],
                 }
             ],
             "connection_id": connection_id,
