@@ -199,7 +199,7 @@ parameters:
   displayName: Verified eMail Credential Definition Id
   description: Verified eMail Credential Definition Id.
   required: true
-  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:625:default"
+  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:755:default"
 - name: SITE_URL
   displayName: Site URL
   description: The URL for the site
@@ -242,7 +242,7 @@ parameters:
 - name: STAFF_EMAILS
   displayName: Emails to send notifications to
   required: true
-  value: "nick@lucent.is,swcurran@cloudcompass.ca"
+  value: "nick@lucent.is,swcurran@cloudcompass.ca,john.jordan@gov.bc.ca"
 - name: CPU_REQUEST
   displayName: Resources CPU Request
   description: The resources CPU request (in cores) for this build.
