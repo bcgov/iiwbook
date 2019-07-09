@@ -69,8 +69,8 @@ objects:
           env:
           - name: PORT
             value: ${PORT}
-          - name: VERIFIED_EMAIL_CRED_DEF_ID
-            value: ${VERIFIED_EMAIL_CRED_DEF_ID}
+          - name: INDY_EMAIL_VERIFIER_DID
+            value: ${INDY_EMAIL_VERIFIER_DID}
           - name: SITE_URL
             value: ${SITE_URL}
           - name: AGENT_URL
@@ -195,11 +195,11 @@ parameters:
   description: The port on which the service will listen.
   required: true
   value: "8080"
-- name: VERIFIED_EMAIL_CRED_DEF_ID
-  displayName: Verified eMail Credential Definition Id
-  description: Verified eMail Credential Definition Id.
+- name: INDY_EMAIL_VERIFIER_DID
+  displayName: Indy Email Verifier DID
+  description: The did of the email verifier issuer that we trust
   required: true
-  value: "MTYqmTBoLT7KLP5RNfgK3b:3:CL:755:default"
+  value: "MTYqmTBoLT7KLP5RNfgK3b"
 - name: SITE_URL
   displayName: Site URL
   description: The URL for the site
