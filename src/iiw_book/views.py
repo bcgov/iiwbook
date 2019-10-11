@@ -3,6 +3,7 @@ import io
 import os
 import re
 import json
+import time
 from datetime import datetime
 
 import qrcode
@@ -132,6 +133,9 @@ def webhooks(request, topic):
     if topic == "connections" and message["state"] == "response":
         connection_id = message["connection_id"]
         assert connection_id is not None
+
+        # ensure that connection response enters dispatch queue
+        time.sleep(5)
 
         LOGGER.info(
             f"Sending presentation request for connection {message['connection_id']}"
