@@ -10,14 +10,19 @@ import qrcode
 import requests
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import (
+    JsonResponse,
+    HttpResponse,
+    HttpResponseRedirect,
+    HttpResponseNotFound,
+)
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 
-from .models import Attendee
+from .models import Attendee, SessionState
 
 import logging
 
@@ -43,12 +48,19 @@ def invite(request):
     response = requests.post(f"{AGENT_URL}/connections/create-invitation")
     invite = response.json()
     invitation_url = invite["invitation_url"]
+    connection_id = invite["connection_id"]
 
     streetcred_url = re.sub(
         r"^https?:\/\/\S*\?", "id.streetcred://invite?", invitation_url
     )
 
     template = loader.get_template("invite.html")
+
+    SessionState.objects.create(connection_id=connection_id, state="invite-created")
+
+    print("\n\n\n")
+    print("invite created")
+    print("\n\n\n")
 
     stream = io.BytesIO()
     qr_png = qrcode.make(invitation_url)
@@ -61,9 +73,30 @@ def invite(request):
                 "qr_png": qr_png_b64,
                 "streetcred_url": streetcred_url,
                 "invitation_url": invitation_url,
+                "connection_id": connection_id,
             },
             request,
         )
+    )
+
+
+def state(request, connection_id):
+    state = SessionState.objects.get(connection_id=connection_id)
+    resp = {"state": state.state}
+    try:
+        attendee = Attendee.objects.get(connection_id=connection_id)
+        resp["email"] = attendee.email
+        resp["full_name"] = attendee.full_name
+    except:
+        pass
+    return JsonResponse(resp)
+
+
+def in_progress(request, connection_id):
+    state = SessionState.objects.get(connection_id=connection_id)
+    template = loader.get_template("in_progress.html")
+    return HttpResponse(
+        template.render({"connection_id": connection_id, state: state.state}, request)
     )
 
 
@@ -129,10 +162,24 @@ def webhooks(request, topic):
     message = json.loads(request.body)
     LOGGER.info(f"webhook received - topic: {topic} body: {request.body}")
 
+    if topic == "connections" and message["state"] == "request":
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="connection-request-received"
+        )
+
     # Handle new invites, send presentation request
     if topic == "connections" and message["state"] == "response":
+
+        print("\n\n\n")
+        print("connection formed")
+        print("\n\n\n")
+
         connection_id = message["connection_id"]
         assert connection_id is not None
+
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="connection-formed"
+        )
 
         # ensure that connection response enters dispatch queue
         time.sleep(5)
@@ -160,6 +207,13 @@ def webhooks(request, topic):
         }
         response = requests.post(
             f"{AGENT_URL}/presentation_exchange/send_request", json=request_body
+        )
+
+        print("\n\n\n")
+        print("presentation request sent")
+        print("\n\n\n")
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="request-sent"
         )
 
         return HttpResponse()
@@ -215,6 +269,10 @@ def webhooks(request, topic):
             STAFF_EMAILS.split(","),
             fail_silently=False,
             html_message=email_html,
+        )
+
+        SessionState.objects.create(
+            connection_id=connection_id, state="presentation-verified"
         )
 
         return HttpResponse()

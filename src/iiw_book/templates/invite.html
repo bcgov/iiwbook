@@ -21,6 +21,25 @@
     <link rel="stylesheet" href="{% static 'css/app.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bcgov_theme.min.css' %}" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+    <script>
+      (async () => {
+        var interval = setInterval(async function(){
+          try {
+            console.log("getting state...")
+            const response = await fetch('/state/' + '{{connection_id}}');
+            const state = await response.json();
+            console.log(state)
+            if (state["state"] !== 'invite-created') {
+              clearInterval(interval)
+              location.href = '/in-progress/' + '{{connection_id}}';
+            }
+          } catch (e) {
+            console.error(e)
+          }
+        }, 500)
+      })();
+    </script>
   </head>
   <body>
     <!--[if lt IE 7]>

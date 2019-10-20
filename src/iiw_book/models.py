@@ -7,3 +7,8 @@ class Attendee(models.Model):
     denied = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
     full_name = models.TextField(default=None, blank=True, null=True)
+
+
+class SessionState(models.Model):
+    connection_id = models.UUIDField()
+    state = models.TextField()
