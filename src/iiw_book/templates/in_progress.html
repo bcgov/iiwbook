@@ -41,6 +41,36 @@
 
               el = document.querySelector('#waiting-for-presentation');
               el.style.display = 'block';
+            } else if (state["state"] == 'request-sent') {
+              el = document.querySelector('#waiting-for-presentation');
+              el.style.display = 'none';
+
+              el = document.querySelector('#presentation-verified');
+              el.style.display = 'body';
+
+              el = document.querySelector('#awaiting-approval');
+              el.style.display = 'body';
+              
+              el = document.querySelector('#email-placeholder');
+              el.textContent = state["email"]
+            } else if (state["state"] == 'approved') {
+              el = document.querySelector('#awaiting-approval');
+              el.style.display = 'none';
+
+              el = document.querySelector('#attendance-approved');
+              el.style.display = 'body';
+
+              el = document.querySelector('#awaiting-credential-request');
+              el.style.display = 'body';
+              
+              el = document.querySelector('#name-placeholder');
+              el.textContent = state["full_name"]
+            } else if (state["state"] == 'credential-issued') {
+              el = document.querySelector('#awaiting-credential-request');
+              el.style.display = 'none';
+
+              el = document.querySelector('#credential-issued');
+              el.style.display = 'body';
             }
             
           } catch (e) {
@@ -124,12 +154,12 @@
                 </p>
               </li>
 
-              {% comment %} Presentation request sent {% endcomment %}
+              {% comment %} Presentation verified {% endcomment %}
               <li id="presentation-verified" style="display: none">
                 <h2>Presentation Received and Verified <span class="fa fa-check"></span></h2>
                 <p>
                 We have received your verified email proof. You have verified ownership of the
-                email address <b>nick@nrempel.com</b>.
+                email address <b id="email-placeholder"></b>.
                 </p>
               </li>
 
@@ -141,6 +171,29 @@
                 attendance credential.
                 </p>
               </li>
+
+              {% comment %} Approved {% endcomment %}
+              <li id="attendance-approved" style="display: none">
+                <h2>IIW Attendance Approved <span class="fa fa-check"></span></h2>
+                <p>
+                Thank you <b id="name-placeholder"></b>. Your email address has been approved.
+                We have sent you a credential offer for your attendance credential.
+                </p>
+              </li>
+
+              <li id="awaiting-credential-request" style="display: none">
+                <h2>Waiting for you to accept the credential offer... <span class="fa fa-spinner fa-spin"></span></h2>
+              </li>
+
+              {% comment %} Credential Issued {% endcomment %}
+              <li id="credential-issued" style="display: none">
+                <h2>Credential Issued <span class="fa fa-check"></span></h2>
+                <p>
+                Congratulations! Your IIW Attendance credential has been issued.
+                You should receive a notification to store the credential in your wallet.
+                </p>
+              </li>
+
             </ul>
           </div>
         </div>

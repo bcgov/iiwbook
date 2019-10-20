@@ -151,6 +151,10 @@ def attendees_submit(request):
                 f"{AGENT_URL}/credential_exchange/send-offer", json=request_body
             )
 
+            SessionState.objects.filter(
+                connection_id=str(attendee.connection_id)
+            ).update(state="approved")
+
         return HttpResponseRedirect("/backend")
 
     return HttpResponseNotFound()
@@ -163,6 +167,7 @@ def webhooks(request, topic):
     LOGGER.info(f"webhook received - topic: {topic} body: {request.body}")
 
     if topic == "connections" and message["state"] == "request":
+        connection_id = message["connection_id"]
         SessionState.objects.filter(connection_id=connection_id).update(
             state="connection-request-received"
         )
@@ -300,6 +305,10 @@ def webhooks(request, topic):
         response = requests.post(
             f"{AGENT_URL}/credential_exchange/{credential_exchange_id}/issue",
             json=request_body,
+        )
+
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="credential-issued"
         )
 
         return HttpResponse()
