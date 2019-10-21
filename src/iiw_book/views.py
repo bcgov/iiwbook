@@ -89,6 +89,7 @@ def state(request, connection_id):
         resp["full_name"] = attendee.full_name
     except:
         pass
+
     return JsonResponse(resp)
 
 
