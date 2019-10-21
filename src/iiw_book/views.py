@@ -202,7 +202,7 @@ def webhooks(request, topic):
                     "name": "email",
                     "restrictions": [
                         {
-                            "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                            # "issuer_did": INDY_EMAIL_VERIFIER_DID,
                             "schema_name": "verified-email",
                         }
                     ],
@@ -276,8 +276,8 @@ def webhooks(request, topic):
             html_message=email_html,
         )
 
-        SessionState.objects.create(
-            connection_id=connection_id, state="presentation-verified"
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="presentation-verified"
         )
 
         return HttpResponse()
