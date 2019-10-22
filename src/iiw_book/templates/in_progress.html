@@ -1,0 +1,205 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+  <!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+    <title>IIWBook Attendance Issuer</title>
+    <meta
+      name="description"
+      content="A verification service used to issue a verifiable credential asserting a requester is an IIW 28 Attendee based on their verified email address."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bcgov_theme.min.css' %}" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+    <script>
+      (async () => {
+        var state = '{{state}}'
+        setInterval(async function(){
+          try {
+            console.log("getting state...")
+            const response = await fetch('/state/' + '{{connection_id}}');
+            state = await response.json();
+            console.log(state)
+
+            if(state["state"] == 'request-sent') {
+              el = document.querySelector('#request-sending');
+              el.style.display = 'none';
+
+              el = document.querySelector('#request-sent');
+              el.style.display = 'block';
+
+              el = document.querySelector('#waiting-for-presentation');
+              el.style.display = 'block';
+            } else if (state["state"] == 'presentation-verified') {
+              el = document.querySelector('#waiting-for-presentation');
+              el.style.display = 'none';
+
+              el = document.querySelector('#presentation-verified');
+              el.style.display = 'block';
+
+              el = document.querySelector('#awaiting-approval');
+              el.style.display = 'block';
+              
+              el = document.querySelector('#email-placeholder');
+              el.textContent = state["email"]
+            } else if (state["state"] == 'approved') {
+              el = document.querySelector('#awaiting-approval');
+              el.style.display = 'none';
+
+              el = document.querySelector('#attendance-approved');
+              el.style.display = 'block';
+
+              el = document.querySelector('#awaiting-credential-request');
+              el.style.display = 'block';
+              
+              el = document.querySelector('#name-placeholder');
+              el.textContent = state["full_name"]
+            } else if (state["state"] == 'credential-issued') {
+              el = document.querySelector('#awaiting-credential-request');
+              el.style.display = 'none';
+
+              el = document.querySelector('#credential-issued');
+              el.style.display = 'block';
+            }
+            
+          } catch (e) {
+            console.error(e)
+          }
+        }, 500)
+
+      })();
+    </script>
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#">upgrade your browser</a> to improve your experience.
+      </p>
+    <![endif]-->
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <!-- Navbar content -->
+        <div class="container">
+          <a class="navbar-brand" href="/">
+            <img
+              class="img-fluid d-none d-md-block"
+              src="/assets/images/iiw-dog-logo.png"
+              alt="IIW Dog Logo"
+            />
+
+            <img
+              class="img-fluid d-md-none"
+              src="/assets/images/iiw-dog-logo.png"
+              alt="IIW Dog Logo"
+            />
+          </a>
+          <div class="navbar-brand">
+            IIWBook
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main role="main">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-9 col-md-12">
+            <h1>Credential Exchange in Progress</h1>
+            <ul style="list-style: none;">
+              {% comment %} Connection formed {% endcomment %}
+              <li id="connection-formed">
+                <h2>Connection Formed <span class="fa fa-check"></span></h2>
+                <p>
+                You now have a connection with IIW Book.
+                </p>
+              </li>
+
+              <li id="request-sending">
+                <h2>Sending Proof Request <span class="fa fa-spinner fa-spin"></span></h2>
+              </li>
+
+              {% comment %} Proof request sent {% endcomment %}
+              <li id="request-sent" style="display: none">
+                <h2>Proof Request Sent <span class="fa fa-check"></span></h2>
+                <p>
+                Before we can check if your email is in our database, we
+                need to check for a verified email credential. For this, we use
+                a separate trusted service.
+                </p>
+                <p>
+                If you haven't already,
+                <a href="https://email-verification.vonx.io" target="_blank">please go here</a>
+                to obtain a verified email credential. Be sure to verify the email that you used
+                to sign up to IIW.
+                </p>
+              </li>
+
+              <li id="waiting-for-presentation" style="display: none">
+                <h2>Waiting for Proof <span class="fa fa-spinner fa-spin"></span></h2>
+                <p>
+                We are waiting for you to respond to the presentation request we sent.
+                Using your agent, select the relevant verified email credential to satisfy
+                the request and respond with a proof.
+                </p>
+              </li>
+
+              {% comment %} Presentation verified {% endcomment %}
+              <li id="presentation-verified" style="display: none">
+                <h2>Presentation Received and Verified <span class="fa fa-check"></span></h2>
+                <p>
+                We have received your verified email proof. You have verified ownership of the
+                email address <b id="email-placeholder"></b>.
+                </p>
+              </li>
+
+              <li id="awaiting-approval" style="display: none">
+                <h2>Awaiting IIW Approval <span class="fa fa-spinner fa-spin"></span></h2>
+                <p>
+                We have your email address and we are manually verifying that your verified email
+                address is on the attendee list. Once this is verified, you will receive an IIW
+                attendance credential.
+                </p>
+              </li>
+
+              {% comment %} Approved {% endcomment %}
+              <li id="attendance-approved" style="display: none">
+                <h2>IIW Attendance Approved <span class="fa fa-check"></span></h2>
+                <p>
+                Thank you <b id="name-placeholder"></b>. Your email address has been approved.
+                We have sent you a credential offer for your attendance credential.
+                </p>
+              </li>
+
+              <li id="awaiting-credential-request" style="display: none">
+                <h2>Waiting for you to accept the credential offer... <span class="fa fa-spinner fa-spin"></span></h2>
+              </li>
+
+              {% comment %} Credential Issued {% endcomment %}
+              <li id="credential-issued" style="display: none">
+                <h2>Credential Issued <span class="fa fa-check"></span></h2>
+                <p>
+                Congratulations! Your IIW Attendance credential has been issued.
+                You should receive a notification to store the credential in your wallet.
+                </p>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="{% static 'js/bcgov_theme.min.js' %}" async defer></script>
+  </body>
+</html>

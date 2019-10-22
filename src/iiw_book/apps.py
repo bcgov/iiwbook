@@ -25,7 +25,7 @@ class IIWBookConfig(AppConfig):
         if cache.get("credential_definition_id") is None:
             schema_body = {
                 "schema_name": "iiw_attendance",
-                "schema_version": "1.2.1",
+                "schema_version": "1.2.4",
                 "attributes": ["email", "full_name", "time"],
             }
             schema_response = requests.post(f"{AGENT_URL}/schemas", json=schema_body)

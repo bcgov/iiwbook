@@ -3,34 +3,40 @@ import io
 import os
 import re
 import json
+import time
 from datetime import datetime
 
 import qrcode
 import requests
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import (
+    JsonResponse,
+    HttpResponse,
+    HttpResponseRedirect,
+    HttpResponseNotFound,
+)
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 
-from .models import Attendee
+from .models import Attendee, SessionState
 
 import logging
 
 LOGGER = logging.getLogger(__name__)
 
 AGENT_URL = os.environ.get("AGENT_URL")
-VERIFIED_EMAIL_CRED_DEF_ID = os.environ.get("VERIFIED_EMAIL_CRED_DEF_ID")
+INDY_EMAIL_VERIFIER_DID = os.environ.get("INDY_EMAIL_VERIFIER_DID")
 STAFF_EMAILS = os.environ.get("STAFF_EMAILS")
 
 
 if not AGENT_URL:
     raise Exception("AGENT_URL is not set")
-if not VERIFIED_EMAIL_CRED_DEF_ID:
-    raise Exception("VERIFIED_EMAIL_CRED_DEF_ID is not set")
+if not INDY_EMAIL_VERIFIER_DID:
+    raise Exception("INDY_EMAIL_VERIFIER_DID is not set")
 
 
 def index(request):
@@ -42,12 +48,21 @@ def invite(request):
     response = requests.post(f"{AGENT_URL}/connections/create-invitation")
     invite = response.json()
     invitation_url = invite["invitation_url"]
+    connection_id = invite["connection_id"]
 
     streetcred_url = re.sub(
         r"^https?:\/\/\S*\?", "id.streetcred://invite?", invitation_url
     )
 
     template = loader.get_template("invite.html")
+
+    SessionState.objects.get_or_create(
+        connection_id=connection_id, state="invite-created"
+    )
+
+    print("\n\n\n")
+    print("invite created")
+    print("\n\n\n")
 
     stream = io.BytesIO()
     qr_png = qrcode.make(invitation_url)
@@ -60,9 +75,31 @@ def invite(request):
                 "qr_png": qr_png_b64,
                 "streetcred_url": streetcred_url,
                 "invitation_url": invitation_url,
+                "connection_id": connection_id,
             },
             request,
         )
+    )
+
+
+def state(request, connection_id):
+    state = SessionState.objects.get(connection_id=connection_id)
+    resp = {"state": state.state}
+    try:
+        attendee = Attendee.objects.get(connection_id=connection_id)
+        resp["email"] = attendee.email
+        resp["full_name"] = attendee.full_name
+    except:
+        pass
+
+    return JsonResponse(resp)
+
+
+def in_progress(request, connection_id):
+    state = SessionState.objects.get(connection_id=connection_id)
+    template = loader.get_template("in_progress.html")
+    return HttpResponse(
+        template.render({"connection_id": connection_id, state: state.state}, request)
     )
 
 
@@ -117,6 +154,10 @@ def attendees_submit(request):
                 f"{AGENT_URL}/credential_exchange/send-offer", json=request_body
             )
 
+            SessionState.objects.filter(
+                connection_id=str(attendee.connection_id)
+            ).update(state="approved")
+
         return HttpResponseRedirect("/backend")
 
     return HttpResponseNotFound()
@@ -128,10 +169,28 @@ def webhooks(request, topic):
     message = json.loads(request.body)
     LOGGER.info(f"webhook received - topic: {topic} body: {request.body}")
 
+    if topic == "connections" and message["state"] == "request":
+        connection_id = message["connection_id"]
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="connection-request-received"
+        )
+
     # Handle new invites, send presentation request
     if topic == "connections" and message["state"] == "response":
+
+        print("\n\n\n")
+        print("connection formed")
+        print("\n\n\n")
+
         connection_id = message["connection_id"]
         assert connection_id is not None
+
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="connection-formed"
+        )
+
+        # ensure that connection response enters dispatch queue
+        time.sleep(5)
 
         LOGGER.info(
             f"Sending presentation request for connection {message['connection_id']}"
@@ -144,13 +203,25 @@ def webhooks(request, topic):
             "requested_attributes": [
                 {
                     "name": "email",
-                    "restrictions": [{"cred_def_id": VERIFIED_EMAIL_CRED_DEF_ID}],
+                    "restrictions": [
+                        {
+                            "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                            "schema_name": "verified-email"
+                        }
+                    ],
                 }
             ],
             "connection_id": connection_id,
         }
         response = requests.post(
             f"{AGENT_URL}/presentation_exchange/send_request", json=request_body
+        )
+
+        print("\n\n\n")
+        print("presentation request sent")
+        print("\n\n\n")
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="request-sent"
         )
 
         return HttpResponse()
@@ -208,6 +279,10 @@ def webhooks(request, topic):
             html_message=email_html,
         )
 
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="presentation-verified"
+        )
+
         return HttpResponse()
 
     # Handle cred request, issue cred
@@ -233,6 +308,10 @@ def webhooks(request, topic):
         response = requests.post(
             f"{AGENT_URL}/credential_exchange/{credential_exchange_id}/issue",
             json=request_body,
+        )
+
+        SessionState.objects.filter(connection_id=connection_id).update(
+            state="credential-issued"
         )
 
         return HttpResponse()
