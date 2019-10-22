@@ -41,15 +41,15 @@
 
               el = document.querySelector('#waiting-for-presentation');
               el.style.display = 'block';
-            } else if (state["state"] == 'request-sent') {
+            } else if (state["state"] == 'presentation-verified') {
               el = document.querySelector('#waiting-for-presentation');
               el.style.display = 'none';
 
               el = document.querySelector('#presentation-verified');
-              el.style.display = 'body';
+              el.style.display = 'block';
 
               el = document.querySelector('#awaiting-approval');
-              el.style.display = 'body';
+              el.style.display = 'block';
               
               el = document.querySelector('#email-placeholder');
               el.textContent = state["email"]
@@ -58,10 +58,10 @@
               el.style.display = 'none';
 
               el = document.querySelector('#attendance-approved');
-              el.style.display = 'body';
+              el.style.display = 'block';
 
               el = document.querySelector('#awaiting-credential-request');
-              el.style.display = 'body';
+              el.style.display = 'block';
               
               el = document.querySelector('#name-placeholder');
               el.textContent = state["full_name"]
@@ -70,7 +70,7 @@
               el.style.display = 'none';
 
               el = document.querySelector('#credential-issued');
-              el.style.display = 'body';
+              el.style.display = 'block';
             }
             
           } catch (e) {
