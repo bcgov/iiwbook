@@ -56,7 +56,9 @@ def invite(request):
 
     template = loader.get_template("invite.html")
 
-    SessionState.objects.create(connection_id=connection_id, state="invite-created")
+    SessionState.objects.get_or_create(
+        connection_id=connection_id, state="invite-created"
+    )
 
     print("\n\n\n")
     print("invite created")
@@ -204,7 +206,7 @@ def webhooks(request, topic):
                     "restrictions": [
                         {
                             # "issuer_did": INDY_EMAIL_VERIFIER_DID,
-                            "schema_name": "verified-email",
+                            "schema_name": "verified-email"
                         }
                     ],
                 }
