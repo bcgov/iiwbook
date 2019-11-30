@@ -46,6 +46,7 @@ def index(request):
 
 def invite(request):
     response = requests.post(f"{AGENT_URL}/connections/create-invitation")
+    response.raise_for_status()
     invite = response.json()
     invitation_url = invite["invitation_url"]
     connection_id = invite["connection_id"]
@@ -103,21 +104,21 @@ def in_progress(request, connection_id):
     )
 
 
-@login_required
+# @login_required
 def backend(request):
     template = loader.get_template("backend.html")
     attendees = Attendee.objects.filter(approved=False, denied=False)
     return HttpResponse(template.render({"attendees": attendees}, request))
 
 
-@login_required
+# @login_required
 def backend_denied(request):
     template = loader.get_template("backend_denied.html")
     attendees = Attendee.objects.filter(approved=False, denied=True)
     return HttpResponse(template.render({"attendees": attendees}, request))
 
 
-@login_required
+# @login_required
 def backend_approved(request):
     template = loader.get_template("backend_approved.html")
     attendees = Attendee.objects.filter(approved=True)
@@ -148,11 +149,18 @@ def attendees_submit(request):
             request_body = {
                 "connection_id": str(attendee.connection_id),
                 "credential_definition_id": credential_definition_id,
+                "credential_preview": {
+                    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/issue-credential/1.0/credential-preview",
+                    "attributes": [
+                        {"name": "email", "value": attendee.email},
+                        {"name": "full_name", "value": attendee.full_name},
+                        {"name": "time", "value": str(datetime.utcnow())},
+                    ],
+                },
             }
 
-            response = requests.post(
-                f"{AGENT_URL}/credential_exchange/send-offer", json=request_body
-            )
+            response = requests.post(f"{AGENT_URL}​/issue-credential​/send-offer")
+            response.raise_for_status()
 
             SessionState.objects.filter(
                 connection_id=str(attendee.connection_id)
@@ -178,9 +186,9 @@ def webhooks(request, topic):
     # Handle new invites, send presentation request
     if topic == "connections" and message["state"] == "response":
 
-        print("\n\n\n")
-        print("connection formed")
-        print("\n\n\n")
+        #     print("\n\n\n")
+        #     print("connection formed")
+        #     print("\n\n\n")
 
         connection_id = message["connection_id"]
         assert connection_id is not None
@@ -197,25 +205,32 @@ def webhooks(request, topic):
         )
 
         request_body = {
-            "name": "BC Gov Verified Email",
-            "version": "1.0.0",
-            "requested_predicates": [],
-            "requested_attributes": [
-                {
-                    "name": "email",
-                    "restrictions": [
-                        {
-                            "issuer_did": INDY_EMAIL_VERIFIER_DID,
-                            "schema_name": "verified-email"
-                        }
-                    ],
-                }
-            ],
             "connection_id": connection_id,
+            "proof_request": {
+                "name": "BC Gov Verified Email",
+                "version": "1.0.0",
+                "requested_predicates": {},
+                "requested_attributes": {
+                    "email_referent": {
+                        "name": "email",
+                        "restrictions": [
+                            # {
+                            #     "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                            #     "schema_name": "verified-email",
+                            # }
+                        ],
+                        "non_revoked": {
+                            "from_epoch": 0,
+                            "to_epoch": 1675062119,
+                        },
+                    }
+                },
+            },
         }
         response = requests.post(
-            f"{AGENT_URL}/presentation_exchange/send_request", json=request_body
+            f"{AGENT_URL}/present-proof/send-request", json=request_body
         )
+        response.raise_for_status()
 
         print("\n\n\n")
         print("presentation request sent")
@@ -226,7 +241,7 @@ def webhooks(request, topic):
 
         return HttpResponse()
 
-    # TODO: Handle presentation, verify
+        # TODO: Handle presentation, verify
     if topic == "presentations" and message["state"] == "presentation_received":
         presentation_exchange_id = message["presentation_exchange_id"]
         assert presentation_exchange_id is not None
@@ -239,11 +254,13 @@ def webhooks(request, topic):
             f"{AGENT_URL}/presentation_exchange/{presentation_exchange_id}/verify_presentation"
         )
 
+        response.raise_for_status()
+
         LOGGER.info(response.text)
 
         return HttpResponse()
 
-    # Handle verify, save state in db
+        # Handle verify, save state in db
     if topic == "presentations" and message["state"] == "verified":
         connection_id = message["connection_id"]
         assert connection_id is not None
@@ -299,16 +316,26 @@ def webhooks(request, topic):
         attendee = get_object_or_404(Attendee, connection_id=connection_id)
         request_body = {
             "credential_values": {
-                "email": attendee.email,
-                "full_name": attendee.full_name,
-                "time": str(datetime.utcnow()),
+                # "email": attendee.email,
+                # "full_name": attendee.full_name,
+                # "time": str(datetime.utcnow()),
+                "credential_preview": {
+                    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/issue-credential/1.0/credential-preview",
+                    "attributes": [
+                        {"name": "email", "value": attendee.email},
+                        {"name": "full_name", "value": attendee.full_name},
+                        {"name": "time", "value": str(datetime.utcnow())},
+                    ],
+                }
             }
         }
 
         response = requests.post(
-            f"{AGENT_URL}/credential_exchange/{credential_exchange_id}/issue",
+            f"{AGENT_URL}​/issue-credential​/records​/{credential_exchange_id}/issue",
             json=request_body,
         )
+
+        response.raise_for_status()
 
         SessionState.objects.filter(connection_id=connection_id).update(
             state="credential-issued"
@@ -330,6 +357,8 @@ def webhooks(request, topic):
                 f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
             )
 
+            response.raise_for_status()
+
         return HttpResponse()
 
     # Handle menu perform action
@@ -349,6 +378,8 @@ def webhooks(request, topic):
             response = requests.post(
                 f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
             )
+
+            response.raise_for_status()
 
         return HttpResponse()
 
@@ -552,6 +583,7 @@ def perform_menu_action(
                         "message": action_params.get("comments"),
                     },
                 )
+                response.raise_for_status()
             else:
                 # send introduction proposal to user and ..
                 response = requests.post(
@@ -561,6 +593,7 @@ def perform_menu_action(
                         "message": action_params.get("comments"),
                     },
                 )
+                response.raise_for_status()
 
             return dict(
                 title="Request sent to {}".format(found["title"]),
