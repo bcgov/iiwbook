@@ -221,7 +221,7 @@ def webhooks(request, topic):
                                 "schema_name": "verified-email",
                             },
                             {
-                                "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
+                                # "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
                                 "schema_name": "verified_person",
                             },
                         ],
