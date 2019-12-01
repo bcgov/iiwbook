@@ -217,6 +217,10 @@ def webhooks(request, topic):
                         "name": "email",
                         "restrictions": [
                             {
+                                "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                                "schema_name": "verified-email",
+                            },
+                            {
                                 "issuer_did": "V4nB6Q4fQEbiD1W3B39xgy",
                                 "schema_name": "verified_person",
                             },
