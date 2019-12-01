@@ -21,7 +21,7 @@ services:
       - "11000:11000"
     # volumes:
     # - aca-py:/home/indy/.indy_client/wallet
-    command: start --inbound-transport http 0.0.0.0 11000 --outbound-transport http --admin 0.0.0.0 4000 --endpoint https://01130cac.ngrok.io --wallet-type indy --seed 00000000000000000000000000000000 --genesis-url http://138.197.138.255/genesis --label AGENT_LABEL --auto-accept-invites --auto-accept-requests --log-level debug --admin-insecure-mode --debug
+    command: start --inbound-transport http 0.0.0.0 11000 --outbound-transport http --admin 0.0.0.0 4000 --endpoint https://cd1540b6.ngrok.io --wallet-type indy --seed 00000000000000000000000000000000 --genesis-url http://138.197.138.255/genesis --label AGENT_LABEL --auto-accept-invites --auto-accept-requests --log-level debug --admin-insecure-mode --debug
 
   iiw-book-service:
     image: iiw-book-service
