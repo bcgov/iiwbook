@@ -218,10 +218,13 @@ def webhooks(request, topic):
                         "restrictions": [
                             {
                                 "issuer_did": INDY_EMAIL_VERIFIER_DID,
-                                "schema_name": "verified-email"
-                            }
+                                "schema_name": "verified-email",
+                            },
+                            {
+                                "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
+                                "schema_name": "verified_person",
+                            },
                         ],
-                        "non_revoked": {"from_epoch": 0, "to_epoch": 1675062119},
                     }
                 },
             },
