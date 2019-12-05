@@ -243,7 +243,7 @@ def webhooks(request, topic):
 
         return HttpResponse()
 
-        # TODO: Handle presentation, verify
+    # TODO: Handle presentation, verify
     if topic == "present_proof" and message["state"] == "presentation_received":
         presentation_exchange_id = message["presentation_exchange_id"]
         assert presentation_exchange_id is not None
@@ -252,22 +252,22 @@ def webhooks(request, topic):
             f"Verifying presentation for presentation id {message['presentation_exchange_id']}"
         )
 
-        # response = requests.post(
-        #     f"{AGENT_URL}/present-proof/records/{presentation_exchange_id}/verify-presentation"
-        # )
+        response = requests.post(
+            f"{AGENT_URL}/present-proof/records/{presentation_exchange_id}/verify-presentation"
+        )
 
-        # response.raise_for_status()
+        response.raise_for_status()
 
-        # LOGGER.info(response.text)
+        LOGGER.info(response.text)
 
-        #     return HttpResponse()
+        return HttpResponse()
 
         # HACK: pretend things are verified because the structure that comes back from mobile agent is invalid
 
-        #     # Handle verify, save state in db
-        # if topic == "present_proof" and message["state"] == "verified":
+    # Handle verify, save state in db
+    if topic == "present_proof" and message["state"] == "verified":
         connection_id = message["connection_id"]
-        # assert connection_id is not None
+        assert connection_id is not None
 
         # HACK: we need a better way to pull values out of presentations
         revealed_attrs = message["presentation"]["requested_proof"]["revealed_attrs"]
