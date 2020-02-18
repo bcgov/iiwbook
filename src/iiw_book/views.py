@@ -52,7 +52,7 @@ def invite(request):
     connection_id = invite["connection_id"]
 
     streetcred_url = re.sub(
-        r"^https?:\/\/\S*\?", "id.streetcred://invite?", invitation_url
+        r"^https?:\/\/\S*\?", "didcomm://invite?", invitation_url
     )
 
     template = loader.get_template("invite.html")
