@@ -31,6 +31,7 @@ LOGGER = logging.getLogger(__name__)
 AGENT_URL = os.environ.get("AGENT_URL")
 INDY_EMAIL_VERIFIER_DID = os.environ.get("INDY_EMAIL_VERIFIER_DID")
 STAFF_EMAILS = os.environ.get("STAFF_EMAILS")
+CONFERENCE_OPTIONS = os.environ.get("CONFERENCE_OPTIONS")
 
 
 if not AGENT_URL:
@@ -51,9 +52,7 @@ def invite(request):
     invitation_url = invite["invitation_url"]
     connection_id = invite["connection_id"]
 
-    streetcred_url = re.sub(
-        r"^https?:\/\/\S*\?", "didcomm://invite?", invitation_url
-    )
+    streetcred_url = re.sub(r"^https?:\/\/\S*\?", "didcomm://invite?", invitation_url)
 
     template = loader.get_template("invite.html")
 
@@ -95,13 +94,27 @@ def state(request, connection_id):
 
     return JsonResponse(resp)
 
-
 def in_progress(request, connection_id):
     state = SessionState.objects.get(connection_id=connection_id)
     template = loader.get_template("in_progress.html")
     return HttpResponse(
         template.render({"connection_id": connection_id, state: state.state}, request)
     )
+
+def submit_name(request, connection_id):
+    if request.method == "GET":
+        get_object_or_404(SessionState, connection_id=connection_id)
+        template = loader.get_template("submit_name.html")
+        conferences = CONFERENCE_OPTIONS.split(",")
+        return HttpResponse(
+            template.render(
+                {"connection_id": connection_id, "conferences": conferences}, request
+            )
+        )
+    elif request.method == "POST":
+        return HttpResponseRedirect(f"/in-progress/{connection_id}")
+    else:
+        return HttpResponseNotFound("Not found")
 
 
 @login_required
@@ -215,16 +228,16 @@ def webhooks(request, topic):
                 "requested_attributes": {
                     "email_referent": {
                         "name": "email",
-                        "restrictions": [
-                            {
-                                "issuer_did": INDY_EMAIL_VERIFIER_DID,
-                                "schema_name": "verified-email",
-                            },
-                            {
-                                "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
-                                "schema_name": "verified_person",
-                            },
-                        ],
+                        # "restrictions": [
+                        #     {
+                        #         "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                        #         "schema_name": "verified-email",
+                        #     },
+                        #     {
+                        #         "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
+                        #         "schema_name": "verified_person",
+                        #     },
+                        # ],
                     }
                 },
             },
