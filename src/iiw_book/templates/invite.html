@@ -32,7 +32,7 @@
             console.log(state)
             if (state["state"] !== 'invite-created') {
               clearInterval(interval)
-              location.href = '/in-progress/' + '{{connection_id}}';
+              location.href = '/submit-name/' + '{{connection_id}}';
             }
           } catch (e) {
             console.error(e)
