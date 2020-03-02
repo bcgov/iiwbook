@@ -107,6 +107,8 @@ objects:
             value: ${APP_CONFIG}
           - name: WEB_CONCURRENCY
             value: ${WEB_CONCURRENCY}
+          - name: CONFERENCE_OPTIONS
+            value: ${CONFERENCE_OPTIONS}
           image: " "
           ports:
           - containerPort: ${{PORT}}
@@ -243,6 +245,10 @@ parameters:
   displayName: Emails to send notifications to
   required: true
   value: "nick@lucent.is,swcurran@cloudcompass.ca,john.jordan@gov.bc.ca"
+- name: CONFERENCE_OPTIONS
+  displayName: Conference Options
+  required: true
+  value: "IIW,Hyperledger Global Forum"
 - name: CPU_REQUEST
   displayName: Resources CPU Request
   description: The resources CPU request (in cores) for this build.
