@@ -14,7 +14,7 @@
     <title>IIWBook Attendance Issuer</title>
     <meta
       name="description"
-      content="A verification service used to issue a verifiable credential asserting a requester is an IIW 28 Attendee based on their verified email address."
+      content="A verification service used to issue a verifiable credential asserting a requester is a conference attendee based on their verified email address."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -32,22 +32,9 @@
       <nav class="navbar navbar-expand-lg navbar-dark">
         <!-- Navbar content -->
         <div class="container">
-          <a class="navbar-brand" href="/">
-            <img
-              class="img-fluid d-none d-md-block"
-              src="/assets/images/iiw-dog-logo.png"
-              alt="IIW Dog Logo"
-            />
-
-            <img
-              class="img-fluid d-md-none"
-              src="/assets/images/iiw-dog-logo.png"
-              alt="IIW Dog Logo"
-            />
+          <a class="navbar-brand" href="/" style="font-size:2em">
+            ConfBook
           </a>
-          <div class="navbar-brand">
-            IIWBook
-          </div>
         </div>
       </nav>
     </header>
@@ -55,12 +42,10 @@
       <div class="container">
         <div class="row">
           <div class="col-md-9 col-sm-8">
-            <h1>Welcome to IIWBook!</h1>
+            <h1>Welcome to ConfBook!</h1>
             <p>
-              IIWBook is an authorization service that issues to requesting IIW attendees a
-              Hyperledger Indy-style verifiable credential attesting to their attendance at
-              IIW 28. This is part of a demonstration of self-sovereign identity in action
-              presented by the Government of British Columbia and IIW.
+              ConfBook is a demonstration that issues verifiable credentials to
+              conference members
             </p>
             <p>
               Want to know more before proceeding? Learn about this demonstration at 
@@ -69,15 +54,14 @@
               >.
             </p>
             <p>
-              IIW needs your email address to check your IIW attendance. To get that, IIWBook
-              will ask for your email verified credential. Don't have one? Get one at  
+              ConfBook will verify you email using a separate service and credential. To get that, go to  
               <a href="https://email-verification.vonx.io" target="_blank"
                 >https://email-verification.vonx.io</a
               >
             </p>
           </div>
         </div>
-        <a href="/get-invite" class="btn btn-primary btn-lg">Connect to IIWBook</a>
+        <a href="/get-invite" class="btn btn-primary btn-lg">Connect to ConfBook</a>
       </div>
     </main>
 
