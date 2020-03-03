@@ -265,16 +265,16 @@ def webhooks(request, topic):
                 "requested_attributes": {
                     "email_referent": {
                         "name": "email",
-                        # "restrictions": [
-                        #     {
-                        #         "issuer_did": INDY_EMAIL_VERIFIER_DID,
-                        #         "schema_name": "verified-email",
-                        #     },
-                        #     {
-                        #         "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
-                        #         "schema_name": "verified_person",
-                        #     },
-                        # ],
+                        "restrictions": [
+                            {
+                                "issuer_did": INDY_EMAIL_VERIFIER_DID,
+                                "schema_name": "verified-email",
+                            },
+                            {
+                                "issuer_did": "85459GxjNySJ8HwTTQ4vq7",
+                                "schema_name": "verified_person",
+                            },
+                        ],
                     }
                 },
             },
