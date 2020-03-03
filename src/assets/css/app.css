@@ -24,11 +24,12 @@ form {
 
 
 header nav {
-  background-color: rgb(16, 16, 16) !important;
+  background-color: rgb(16, 113, 138) !important;
+  border-bottom: none;
 }
 
 .btn-primary {
-  background-color: rgb(250, 151, 12) !important;
+  background-color: rgb(49, 40, 131) !important;
   border: none !important;
   color: white !important;
 }
