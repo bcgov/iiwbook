@@ -374,6 +374,7 @@ def webhooks(request, topic):
                 "attributes": [
                     {"name": "email", "value": attendee.email},
                     {"name": "full_name", "value": attendee.full_name},
+                    {"name": "conference", "value": attendee.conference},
                     {"name": "time", "value": str(datetime.utcnow())},
                 ],
             }
