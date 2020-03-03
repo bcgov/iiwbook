@@ -240,7 +240,7 @@ parameters:
     displayName: Display Label
     description: Display label
     required: true
-    value: IIW
+    value: ConfBook
   - name: MOUNT_PATH
     displayName: Mount Path
     description: The path to mount the persistent volume.
