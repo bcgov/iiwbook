@@ -11,7 +11,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
-    <title>IIWBook Attendance Issuer</title>
+    <title>ConfBook Attendance Issuer</title>
     <meta
       name="description"
       content="A verification service used to issue a verifiable credential asserting a requester is an IIW 28 Attendee based on their verified email address."
@@ -42,7 +42,7 @@
         <!-- Navbar content -->
         <div class="container">
           <a class="navbar-brand" href="/" style="font-size:2rem">
-            IIWBook Admin Panel
+            ConfBook Admin Panel
           </a>
           <div class="navbar-nav">
             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
@@ -68,8 +68,7 @@
 
             <h1>Attendees</h1>
             <p class="lead">
-              Use the buttons below to approve or deny attendance requests.
-              Approving attendance will trigger the issuance of a credential.
+              This is a list of conference attendees.
             </p>
           </div>
         </div>
