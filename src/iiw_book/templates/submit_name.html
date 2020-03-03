@@ -11,15 +11,17 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
-    <title>IIWBook Attendance Issuer</title>
+    <title>ConfBook Attendance Issuer</title>
     <meta
       name="description"
-      content="A verification service used to issue a verifiable credential asserting a requester is a conference attendee based on their verified email address."
+      content="A verification service used to issue a verifiable credential asserting a requester is an IIW 28 Attendee based on their verified email address."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="{% static 'css/app.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bcgov_theme.min.css' %}" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
   </head>
   <body>
     <!--[if lt IE 7]>
@@ -41,27 +43,26 @@
     <main role="main">
       <div class="container">
         <div class="row">
-          <div class="col-md-9 col-sm-8">
-            <h1>Welcome to ConfBook!</h1>
-            <p>
-              ConfBook is a demonstration that issues verifiable credentials to
-              conference members
-            </p>
-            <p>
-              Want to know more before proceeding? Learn about this demonstration at 
-              <a href="http://iiw.vonx.io" target="_blank"
-                >http://iiw.vonx.io</a
-              >.
-            </p>
-            <p>
-              ConfBook will verify you email using a separate service and credential. To get that, go to  
-              <a href="https://email-verification.vonx.io" target="_blank"
-                >https://email-verification.vonx.io</a
-              >
-            </p>
+          <div class="col-lg-9 col-md-12">
+            <h1>Submit your name</h1>
+            <form action="/submit-name/{{connection_id}}" method="POST" style="max-width: 600px">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="name">Full name</label>
+                <input type="name" class="form-control" name="name" id="name" placeholder="Jane Jones" required>
+              </div>
+              <div class="form-group">
+                <label for="conference">Select a conference</label>
+                <select class="form-control" id="conference" name="conference" required>
+                  {% for conference in conferences %}
+                  <option value="{{conference}}">{{conference}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
           </div>
         </div>
-        <a href="/get-invite" class="btn btn-primary btn-lg">Connect to ConfBook</a>
       </div>
     </main>
 

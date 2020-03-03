@@ -11,10 +11,10 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
-    <title>IIWBook Attendance Issuer</title>
+    <title>ConfBook Attendance Issuer</title>
     <meta
       name="description"
-      content="A verification service used to issue a verifiable credential asserting a requester is an IIW 28 Attendee based on their verified email address."
+      content="A verification service used to issue a verifiable credential asserting a requester is a conference attendee based on their verified email address."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -30,9 +30,9 @@
             const response = await fetch('/state/' + '{{connection_id}}');
             const state = await response.json();
             console.log(state)
-            if (state["state"] !== 'invite-created') {
+            if (state["state"] === 'presentation-verified') {
               clearInterval(interval)
-              location.href = '/in-progress/' + '{{connection_id}}';
+              location.href = '/submit-name/' + '{{connection_id}}';
             }
           } catch (e) {
             console.error(e)
@@ -52,22 +52,9 @@
       <nav class="navbar navbar-expand-lg navbar-dark">
         <!-- Navbar content -->
         <div class="container">
-          <a class="navbar-brand" href="/">
-            <img
-              class="img-fluid d-none d-md-block"
-              src="/assets/images/iiw-dog-logo.png"
-              alt="IIW Dog Logo"
-            />
-
-            <img
-              class="img-fluid d-md-none"
-              src="/assets/images/iiw-dog-logo.png"
-              alt="IIW Dog Logo"
-            />
+          <a class="navbar-brand" href="/" style="font-size:2em">
+            ConfBook
           </a>
-          <div class="navbar-brand">
-            IIWBook
-          </div>
         </div>
       </nav>
     </header>
@@ -75,31 +62,16 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-9 col-md-12">
-            <h1>Connect to IIWBook</h1>
+            <h1>Connect to ConfBook</h1>
             <p>
               Scan the QR code with your mobile agent or click the "Open in a Trusted Digital Wallet" link from your phone to form a
-              connection with IIWBook. Once connected, IIWBook will ask for proof you are in possession of a
+              connection with ConfBook. Once connected, ConfBook will ask for proof you are in possession of a
               verified email address credential. Don't have one? Get one at
               <a href="https://email-verification.vonx.io" target="_blank"
                 >https://email-verification.vonx.io</a
               >
             </p>
-            <p>
-              What happens next?  Once IIWBook has your verified email address, we'll manually match the email address against the Eventbrite
-              IIW 28 Attendee list. Found? Whoohoo! IIWBook will send you your IIW Attendee verifiable credential.
-            </p>
-            <p class="alert alert-admissible alert-info">
-              With IIW 28 now over, we're being very liberal with the term "IIW Attendee". If you have
-              participated in a demo initially presented at IIW (like this one!) we consider you an
-              "IIW Attendee", and your request for a credential will be approved.  Enjoy!
-            </p>
-            <p class="alert alert-admissable alert-warning">
-              In connecting to IIWBook you consent to your email address being recorded strictly for the use of this service.
-              A future update to this service might enable introductions between verified IIW attendees. Learn more at
-              <a href="http://iiw.vonx.io" target="_blank"
-                >http://iiw.vonx.io</a
-              >.
-            </p>
+
             <div class="row">
             	<div class="col-sm-6 col-md-4">
 					<img width="200" src="data:image/png;base64, {{ qr_png }}" />
