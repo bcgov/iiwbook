@@ -42,6 +42,26 @@ objects:
       name: ${NAME}
       weight: 100
 
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${CONF_BOOK_ROUTE_NAME}
+    labels:
+      name: ${CONF_BOOK_ROUTE_NAME}
+      app: ${APP_GROUP}
+      app-group: ${APP_GROUP}
+  spec:
+    host: ${CONF_BOOK_APPLICATION_DOMAIN}
+    port:
+      targetPort: ${NAME}
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: ${NAME}
+      weight: 100
+
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
@@ -168,6 +188,16 @@ parameters:
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
   value: iiwbook.vonx.io
+- name: CONF_BOOK_ROUTE_NAME
+  displayName: Conference Book Route Name
+  description: The name assigned to the conference book route.
+  required: true
+  value: conf-book-service
+- name: CONF_BOOK_APPLICATION_DOMAIN
+  displayName: Conference Book  Application Hostname
+  description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
+  required: false
+  value: confbook.vonx.io
 - name: IMAGE_NAMESPACE
   displayName: Namespace containing application images.
   required: true
