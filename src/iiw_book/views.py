@@ -146,7 +146,7 @@ def submit_name(request, connection_id):
         response.raise_for_status()
 
         SessionState.objects.filter(connection_id=str(attendee.connection_id)).update(
-            state="credential-issued"
+            state="credential-offer-sent"
         )
 
         return HttpResponseRedirect(f"/in-progress/{connection_id}")
