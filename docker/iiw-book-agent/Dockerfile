@@ -1,4 +1,4 @@
-FROM bcgovimages/aries-cloudagent:py36-1.14-1_0.4.4
+FROM bcgovimages/aries-cloudagent:py36-1.14-1_0.4.5
 
 RUN echo "Just pulling the image from Docker Hub"
 # FROM bcgovimages/von-image:py36-1.12-0
