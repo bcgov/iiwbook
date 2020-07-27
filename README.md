@@ -1,18 +1,27 @@
 # IIW Book
 
-## Running 
+## Pre-Requisites
 
-Make sure [Docker](https://docker.com) is installed and running.
+- [Docker](https://www.docker.com/products/docker-desktop)
 
-Install [ngrok](https://ngrok.com).
+- [s2i](https://github.com/openshift/source-to-image/releases)
 
-1. Run `ngrok http 11000`
+- [jq](https://stedolan.github.io/jq)
 
-1. Copy the `https` url it generates for you (**must be https**)
+- [ngrok](https://ngrok.com)
 
-1. Edit line 24 of `docker/docker-compose.yml` and change the link to the ngrok link you copied.
+`jq` and `ngrok` are available on package manager systems for different platforms such as [Homebrew](https://brew.sh/) (Mac), [Chocolatey](https://chocolatey.org/) (Windows) and various Linux distribution package managers.
 
-1. In the `docker` directory run;
-     1. `manage build` and `manage up`.  *Refer to `manage -h` for additional usage information.*
+## Running
 
-Then visit [http://localhost:7070](http://localhost:8080) to see the app running
+Open two shell/terminal sessions:
+
+1. From within the [scripts](./scripts) folder execute `./start-ngrok.sh`. This will create a tunnel for the agent.
+
+2. From within the [docker](./docker) folder:
+    - run `./manage build` to assemble the runtime images for the services
+    - when the build completes, run `./manage up`
+
+_Refer to `manage -h` for additional usage information._
+
+Once services are started, visit [http://localhost:7070](http://localhost:7070) to see the app running.
