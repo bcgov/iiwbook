@@ -154,6 +154,7 @@ Temporary Items
 # Certs and keys
 *.crt
 *.key
+*.pem
 
 # tmp script files
 *_DeploymentConfig.json
