@@ -73,6 +73,18 @@ objects:
       seed: ${WALLET_SEED}
       key: ${WALLET_KEY}
     type: Opaque
+  
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${NAME}-api
+      labels:
+        name: ${NAME}
+        app: ${APP_GROUP}
+        app-group: ${APP_GROUP}
+    stringData:
+      admin-api-key: ${ADMIN_API_KEY}
+    type: Opaque
 
   - kind: DeploymentConfig
     apiVersion: v1
@@ -101,15 +113,15 @@ objects:
               command:
                 - bash
                 - -c
-                - aca-py
-                  start
+                - $(ehco aca-py start
                   -it http 0.0.0.0 ${AGENT_PORT}
                   -ot http
                   --admin 0.0.0.0 ${ADMIN_PORT}
                   --wallet-type indy
                   --auto-accept-invites
                   --auto-accept-requests
-                  --admin-insecure-mode
+                  $([ ! -z "${AGENT_ADMIN_API_KEY}" ] && echo "--admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "--admin-insecure-mode")
+                  );
               env:
                 - name: ADMIN_PORT
                   value: ${INDY_ADMIN_PORT}
@@ -127,6 +139,11 @@ objects:
                     secretKeyRef:
                       name: ${NAME}
                       key: seed
+                - name: AGENT_ADMIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-api
+                      key: admin-api-key
                 - name: ACAPY_GENESIS_URL
                   value: ${GENESIS_FILE_URL}
                 - name: ACAPY_ENDPOINT
@@ -265,7 +282,7 @@ parameters:
     displayName: Persistent Volume Class name
     description: The class of the volume; gluster-file, gluster-block, gluster-file-db
     required: false
-    value: gluster-file-db
+    value: netapp-file-standard
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.
