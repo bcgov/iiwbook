@@ -1,0 +1,9 @@
+# Uses the 'testConnection' script from https://github.com/BCDevOps/openshift-developer-tools
+# Example:
+# echo -e "iiw-book-agent\n iiw-book-service\n "  | xargs -I {} testConnection -n 4a9599-dev -f TestConnections.txt -p {}
+
+google.com:80
+iiw-book-agent:1100
+iiw-book-agent:4000
+iiw-book-service:8080
+iiw-book-postgres:5432

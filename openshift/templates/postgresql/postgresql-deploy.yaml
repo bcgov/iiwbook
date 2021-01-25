@@ -15,6 +15,8 @@ objects:
         name: ${NAME}
         app: ${APP_NAME}
         app-group: ${APP_NAME}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       strategy:
         type: Recreate
@@ -43,6 +45,8 @@ objects:
             name: ${NAME}
             app: ${APP_NAME}
             app-group: ${APP_NAME}
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           volumes:
             - name: ${NAME}-data
@@ -122,6 +126,8 @@ objects:
         name: ${NAME}
         app: ${APP_NAME}
         app-group: ${APP_NAME}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       storageClassName: ${PERSISTENT_VOLUME_CLASS}
       accessModes:
@@ -137,6 +143,8 @@ objects:
         name: ${NAME}
         app: ${APP_NAME}
         app-group: ${APP_NAME}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     stringData:
       admin-password: ${POSTGRESQL_ADMIN_PASSWORD}
       database-password: ${POSTGRESQL_PASSWORD}
@@ -150,6 +158,8 @@ objects:
         name: ${NAME}
         app: ${APP_NAME}
         app-group: ${APP_NAME}
+        role: ${ROLE}
+        env: ${TAG_NAME}
       annotations:
         template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
     spec:
@@ -174,6 +184,16 @@ parameters:
     description: Used to group components together.
     required: true
     value: iiw-book
+  - name: NAMESPACE_NAME
+    displayName: NameSpace name
+    description: name of the project namespace
+    required: true
+    value: myproject
+  - name: ROLE
+    displayName: App Role
+    description: used to divide componenets into specific roles
+    required: true
+    value: db
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true
