@@ -113,7 +113,7 @@ objects:
               command:
                 - bash
                 - -c
-                - $(ehco aca-py start
+                - $(echo aca-py start
                   -it http 0.0.0.0 ${AGENT_PORT}
                   -ot http
                   --admin 0.0.0.0 ${ADMIN_PORT}
@@ -239,6 +239,9 @@ parameters:
     description: The agent port on which the service will listen.
     required: true
     value: "11000"
+  - name: ADMIN_API_KEY
+    displayName: API Key
+    description: The api key used to rescrict the swagger api
   - name: WALLET_KEY
     displayName: Wallet Encryption Key
     description: The encryption key to be used for the wallets.  Needs to be base64 encoded.
