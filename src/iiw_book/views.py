@@ -29,6 +29,7 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 AGENT_URL = os.environ.get("AGENT_URL")
+API_KEY = os.environ.get("AGENT_ADMIN_API_KEY", "")
 INDY_EMAIL_VERIFIER_DID = os.environ.get("INDY_EMAIL_VERIFIER_DID")
 STAFF_EMAILS = os.environ.get("STAFF_EMAILS")
 CONFERENCE_OPTIONS = os.environ.get("CONFERENCE_OPTIONS")
@@ -46,7 +47,7 @@ def index(request):
 
 
 def invite(request):
-    response = requests.post(f"{AGENT_URL}/connections/create-invitation")
+    response = requests.post(f"{AGENT_URL}/connections/create-invitation",headers={"x-api-key": API_KEY})
     response.raise_for_status()
     invite = response.json()
     invitation_url = invite["invitation_url"]
@@ -141,7 +142,7 @@ def submit_name(request, connection_id):
         }
 
         response = requests.post(
-            f"{AGENT_URL}/issue-credential/send-offer", json=request_body
+            f"{AGENT_URL}/issue-credential/send-offer",headers={"x-api-key": API_KEY}, json=request_body
         )
         response.raise_for_status()
 
@@ -210,7 +211,7 @@ def backend(request):
 #             }
 
 #             response = requests.post(
-#                 f"{AGENT_URL}/issue-credential/send-offer", json=request_body
+#                 f"{AGENT_URL}/issue-credential/send-offer", headers={"x-api-key": API_KEY}, json=request_body
 #             )
 #             response.raise_for_status()
 
@@ -280,7 +281,7 @@ def webhooks(request, topic):
             },
         }
         response = requests.post(
-            f"{AGENT_URL}/present-proof/send-request", json=request_body
+            f"{AGENT_URL}/present-proof/send-request",headers={"x-api-key": API_KEY}, json=request_body
         )
         response.raise_for_status()
 
@@ -303,7 +304,7 @@ def webhooks(request, topic):
         )
 
         response = requests.post(
-            f"{AGENT_URL}/present-proof/records/{presentation_exchange_id}/verify-presentation"
+            f"{AGENT_URL}/present-proof/records/{presentation_exchange_id}/verify-presentation", headers={"x-api-key": API_KEY}
         )
 
         response.raise_for_status()
@@ -382,6 +383,7 @@ def webhooks(request, topic):
 
         response = requests.post(
             f"{AGENT_URL}/issue-credential/records/{credential_exchange_id}/issue",
+            headers={"x-api-key": API_KEY},
             json=request_body,
         )
 
@@ -404,7 +406,7 @@ def webhooks(request, topic):
     #         LOGGER.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
     #         LOGGER.info(request_body)
     #         response = requests.post(
-    #             f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
+    #             f"{AGENT_URL}/connections/{connection_id}/send-menu", headers={"x-api-key": API_KEY}, json=request_body
     #         )
 
     #         response.raise_for_status()
@@ -426,7 +428,7 @@ def webhooks(request, topic):
     #         LOGGER.info(f"{AGENT_URL}/connections/{connection_id}/send-menu")
     #         LOGGER.info(request_body)
     #         response = requests.post(
-    #             f"{AGENT_URL}/connections/{connection_id}/send-menu", json=request_body
+    #             f"{AGENT_URL}/connections/{connection_id}/send-menu", headers={"x-api-key": API_KEY}, json=request_body
     #         )
 
     #         response.raise_for_status()
@@ -627,7 +629,7 @@ def webhooks(request, topic):
 #                     f"{AGENT_URL}/connections/{connection_id}/start-introduction"
 #                 )
 #                 response = requests.post(
-#                     f"{AGENT_URL}/connections/{connection_id}/start-introduction",
+#                     f"{AGENT_URL}/connections/{connection_id}/start-introduction", headers={"x-api-key": API_KEY},
 #                     params={
 #                         "target_connection_id": connection_id,
 #                         "message": action_params.get("comments"),
@@ -637,7 +639,7 @@ def webhooks(request, topic):
 #             else:
 #                 # send introduction proposal to user and ..
 #                 response = requests.post(
-#                     f"{AGENT_URL}/connections/{connection_id}/start-introduction",
+#                     f"{AGENT_URL}/connections/{connection_id}/start-introduction", headers={"x-api-key": API_KEY},
 #                     params={
 #                         "target_connection_id": attend_id,
 #                         "message": action_params.get("comments"),
