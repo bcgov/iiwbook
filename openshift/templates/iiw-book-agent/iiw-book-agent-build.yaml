@@ -30,6 +30,8 @@ objects:
       strategy:
         type: Docker
         dockerStrategy:
+          pullSecret:
+            name: ${CRED_NAME}
           noCache: ${{NO_CACHE}}
           dockerfilePath: ${DOCKER_FILE_PATH}
       output:
@@ -42,6 +44,11 @@ parameters:
     description: The name assigned to all of the resources defined in this template.
     required: true
     value: iiw-book-agent
+  - name: CRED_NAME
+    displayName: Crednetial Name
+    description: The name of the credential used for pull secrets.
+    required: true
+    value: artifactory-creds
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together.
