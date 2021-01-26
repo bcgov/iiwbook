@@ -4,12 +4,12 @@
 # Template File: ../openshift/templates/iiw-book-agent/iiw-book-agent-deploy.yaml
 #=========================================================
 # NAME=iiw-book-agent
-# APP_GROUP=iiw-book
+NAMESPACE_NAME=a99fd4
 # NAMESPACE_NAME=myproject
 # ROLE=agent
 APPLICATION_DOMAIN=iiw-book-agent-devex-von-image-prod.pathfinder.gov.bc.ca
 # APPLICATION_ADMIN_DOMAIN=iiwbook-agent-admin.vonx.io
-# IMAGE_NAMESPACE=devex-von-image-tools
+IMAGE_NAMESPACE=a99fd4-tools
 TAG_NAME=prod
 # INDY_ADMIN_PORT=4000
 # INDY_AGENT_PORT=11000

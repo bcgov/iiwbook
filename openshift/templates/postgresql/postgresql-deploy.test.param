@@ -5,9 +5,9 @@
 #=========================================================
 # NAME=postgresql
 # APP_NAME=iiw-book
-# NAMESPACE_NAME=myproject
+NAMESPACE_NAME=a99fd4
 # ROLE=db
-# IMAGE_NAMESPACE=devex-von-image-tools
+IMAGE_NAMESPACE=a99fd4-tools
 # SOURCE_IMAGE_NAME=postgresql
 TAG_NAME=test
 # POSTGRESQL_DATABASE_NAME=iiw-book-db
