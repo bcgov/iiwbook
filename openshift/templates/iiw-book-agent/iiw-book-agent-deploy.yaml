@@ -125,7 +125,7 @@ objects:
         env: ${TAG_NAME}
     spec:
       accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
       resources:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
