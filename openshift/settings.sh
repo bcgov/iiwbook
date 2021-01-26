@@ -7,7 +7,7 @@ export GIT_REF="master"
 # devex-von-image-tools
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 export TOOLS="devex-von-image-tools"
-export DEPLOYMENT_ENV_NAME="tools"
-export DEV="tools"
-export TEST="tools"
-export PROD="tools"
+export DEPLOYMENT_ENV_NAME="dev"
+export DEV="dev"
+export TEST="test"
+export PROD="prod"

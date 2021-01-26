@@ -1,0 +1,15 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/iiw-book-service/iiw-book-service-build.yaml
+#=========================================================
+NAME=iiw-book-service
+APP_NAME=iiw-book
+GIT_REPO_URL=https://github.com/bcgov/iiwbook.git
+GIT_REF=master
+SOURCE_CONTEXT_DIR=src
+SOURCE_IMAGE_KIND=DockerImage
+SOURCE_IMAGE_NAME=registry.access.redhat.com/rhscl/python-36-rhel7
+SOURCE_IMAGE_TAG=latest
+PIP_INDEX_URL=
+OUTPUT_IMAGE_TAG=latest
