@@ -4,7 +4,50 @@ apiVersion: v1
 metadata:
   name: ${NAME}
 objects:
-
+- kind: ExternalNetwork
+  apiVersion: security.devops.gov.bc.ca/v1alpha1
+  metadata:
+    name: ${NAME}
+    network: ${NAME}
+    labels:
+      name: ${NAME}
+      network: ${NAME}
+      app: ${APP_GROUP}
+      app-group: ${APP_GROUP}
+      env: ${TAG_NAME}
+  spec:
+    description: |
+      Define the network parameters for accessing smtp server
+    entries:
+      - ${EMAIL_HOST}
+    servicePorts:
+      - tcp/25
+- kind: NetworkSecurityPolicy
+  apiVersion: security.devops.gov.bc.ca/v1alpha1
+  metadata:
+    name: ${NAME}
+    labels:
+      name: ${NAME}
+      env: ${TAG_NAME}
+      app: ${APP_GROUP}
+      app-group: ${APP_GROUP}
+  spec:
+    description: Allow service to access the database and agent
+    source:
+      - - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+        - role=${ROLE}
+        - app=${APP_GROUP}
+        - env=${TAG_NAME}
+    destination:
+      - - ext:name=${NAME}
+      - - role=db
+        - app=${APP_GROUP}
+        - env=${TAG_NAME}
+        - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+      - - role=agent
+        - app=${APP_GROUP}
+        - env=${TAG_NAME}
+        - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
 - kind: Service
   apiVersion: v1
   metadata:
@@ -13,6 +56,8 @@ objects:
       name: ${NAME}
       app: ${APP_GROUP}
       app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
   spec:
     ports:
     - name: ${NAME}
@@ -30,6 +75,8 @@ objects:
       name: ${NAME}
       app: ${APP_GROUP}
       app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
   spec:
     host: ${APPLICATION_DOMAIN}
     port:
@@ -50,6 +97,8 @@ objects:
       name: ${CONF_BOOK_ROUTE_NAME}
       app: ${APP_GROUP}
       app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
   spec:
     host: ${CONF_BOOK_APPLICATION_DOMAIN}
     port:
@@ -70,6 +119,8 @@ objects:
       name: ${NAME}
       app: ${APP_GROUP}
       app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
   spec:
     replicas: 1
     selector:
@@ -83,6 +134,8 @@ objects:
           name: ${NAME}
           app: ${APP_GROUP}
           app-group: ${APP_GROUP}
+          role: ${ROLE}
+          env: ${TAG_NAME}
       spec:
         containers:
         - name: ${NAME}
@@ -97,6 +150,11 @@ objects:
             value: ${AGENT_URL}
           - name: DEBUG
             value: ${DEBUG}
+          - name: AGENT_ADMIN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: ${AGENT_SERVICE_NAME}-api
+                key: admin-api-key
           - name: DB_NAME
             value: ${DATABASE_NAME}
           - name: DB_USER
@@ -183,6 +241,21 @@ parameters:
   description: Used to group components together.
   required: true
   value: iiw-book
+- name: NAMESPACE_NAME
+  displayName: NameSpace name
+  description: name of the project namespace
+  required: true
+  value: myproject
+- name: ROLE
+  displayName: App Role
+  description: used to divide componenets into specific roles
+  required: true
+  value: service
+- name: AGENT_SERVICE_NAME
+  displayName: Agent Service Name
+  description: The name of the agent service
+  required: true
+  value: iiw-book-agent
 - name: APPLICATION_DOMAIN
   displayName: Application Hostname
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
@@ -274,7 +347,7 @@ parameters:
 - name: STAFF_EMAILS
   displayName: Emails to send notifications to
   required: true
-  value: "nick@lucent.is,swcurran@cloudcompass.ca,john.jordan@gov.bc.ca"
+  value: ""
 - name: CONFERENCE_OPTIONS
   displayName: Conference Options
   required: true

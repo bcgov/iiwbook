@@ -4,6 +4,48 @@ apiVersion: v1
 metadata:
   name: ${NAME}
 objects:
+  - kind: ExternalNetwork
+    apiVersion: security.devops.gov.bc.ca/v1alpha1
+    metadata:
+      name: ${NAME}
+      network: ${NAME}
+      labels:
+        name: ${NAME}
+        network: ${NAME}
+        app: ${APP_GROUP}
+        app-group: ${APP_GROUP}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Define the network parameters for accessing remote agents.
+      entries:
+        - 0.0.0.0/0
+      servicePorts:
+        - tcp/9700:9799
+        - tcp/80
+        - tcp/443
+  - kind: NetworkSecurityPolicy
+    apiVersion: security.devops.gov.bc.ca/v1alpha1
+    metadata:
+      name: ${NAME}
+      labels:
+        name: ${NAME}
+        env: ${TAG_NAME}
+        app: ${APP_GROUP}
+        app-group: ${APP_GROUP}
+    spec:
+      description: Allow the the agent to access the service and external network
+      source:
+        - - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+          - role=${ROLE}
+          - app=${APP_GROUP}
+          - env=${TAG_NAME}
+      destination:
+        - - ext:name=${NAME}
+        - - role=service
+          - app=${APP_GROUP}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
   - kind: Service
     apiVersion: v1
     metadata:
@@ -12,6 +54,8 @@ objects:
         name: ${NAME}
         app: ${APP_GROUP}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       ports:
         - name: ${NAME}-admin
@@ -33,10 +77,34 @@ objects:
         name: ${NAME}
         app: ${APP_GROUP}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       host: ${APPLICATION_DOMAIN}
       port:
         targetPort: ${NAME}-agent
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: ${NAME}
+        weight: 100
+
+  - kind: Route
+    apiVersion: v1
+    metadata:
+      name: ${NAME}-admin
+      labels:
+        name: ${NAME}-admin
+        app: ${APP_GROUP}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      host: ${APPLICATION_ADMIN_DOMAIN}
+      port:
+        targetPort: ${NAME}-admin
       tls:
         insecureEdgeTerminationPolicy: Redirect
         termination: edge
@@ -53,9 +121,11 @@ objects:
         name: ${NAME}
         app: ${APP_GROUP}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
       resources:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
@@ -69,9 +139,25 @@ objects:
         name: ${NAME}
         app: ${APP_GROUP}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     stringData:
       seed: ${WALLET_SEED}
       key: ${WALLET_KEY}
+    type: Opaque
+  
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${NAME}-api
+      labels:
+        name: ${NAME}
+        app: ${APP_GROUP}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    stringData:
+      admin-api-key: ${ADMIN_API_KEY}
     type: Opaque
 
   - kind: DeploymentConfig
@@ -82,6 +168,8 @@ objects:
         name: ${NAME}
         app: ${APP_GROUP}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       replicas: 1
       selector:
@@ -95,21 +183,23 @@ objects:
             name: ${NAME}
             app: ${APP_GROUP}
             app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           containers:
             - name: ${NAME}
               command:
                 - bash
                 - -c
-                - aca-py
-                  start
+                - $(echo aca-py start
                   -it http 0.0.0.0 ${AGENT_PORT}
                   -ot http
                   --admin 0.0.0.0 ${ADMIN_PORT}
                   --wallet-type indy
                   --auto-accept-invites
                   --auto-accept-requests
-                  --admin-insecure-mode
+                  $([ ! -z "${AGENT_ADMIN_API_KEY}" ] && echo "--admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "--admin-insecure-mode")
+                  );
               env:
                 - name: ADMIN_PORT
                   value: ${INDY_ADMIN_PORT}
@@ -127,6 +217,11 @@ objects:
                     secretKeyRef:
                       name: ${NAME}
                       key: seed
+                - name: AGENT_ADMIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-api
+                      key: admin-api-key
                 - name: ACAPY_GENESIS_URL
                   value: ${GENESIS_FILE_URL}
                 - name: ACAPY_ENDPOINT
@@ -198,11 +293,26 @@ parameters:
     description: Used to group components together.
     required: true
     value: iiw-book
+  - name: NAMESPACE_NAME
+    displayName: NameSpace name
+    description: name of the project namespace
+    required: true
+    value: myproject
+  - name: ROLE
+    displayName: App Role
+    description: used to divide componenets into specific roles
+    required: true
+    value: agent
   - name: APPLICATION_DOMAIN
     displayName: Application Hostname
     description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
     required: false
     value: iiwbook-agent.vonx.io
+  - name: APPLICATION_ADMIN_DOMAIN
+    displayName: Application Hostname
+    description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
+    required: false
+    value: iiwbook-agent-admin.vonx.io
   - name: IMAGE_NAMESPACE
     displayName: Namespace containing application images.
     required: true
@@ -222,6 +332,9 @@ parameters:
     description: The agent port on which the service will listen.
     required: true
     value: "11000"
+  - name: ADMIN_API_KEY
+    displayName: API Key
+    description: The api key used to rescrict the swagger api
   - name: WALLET_KEY
     displayName: Wallet Encryption Key
     description: The encryption key to be used for the wallets.  Needs to be base64 encoded.
@@ -265,7 +378,7 @@ parameters:
     displayName: Persistent Volume Class name
     description: The class of the volume; gluster-file, gluster-block, gluster-file-db
     required: false
-    value: gluster-file-db
+    value: netapp-file-standard
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.
