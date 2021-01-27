@@ -28,3 +28,6 @@ Open two shell/terminal sessions:
 _Refer to `manage -h` for additional usage information._
 
 Once services are started, visit [http://localhost:7070](http://localhost:7070) to see the app running.
+
+## Deploy to Openshift
+navigate to the openshift folder. To avoid docker pull rate limiting create pull credentails. [Here](https://developer.gov.bc.ca/Artifact-Repositories) is an example using artifactory. Once your pull credentials are set up follow the deployment process on a similar project [here](https://github.com/wadeking98/indy-email-verification#deploy). The process is exactly the same except the admin-api route and the names of the pods will be different.
