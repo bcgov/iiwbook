@@ -19,7 +19,7 @@ objects:
     description: |
       Define the network parameters for accessing smtp server
     entries:
-      - ${EMAIL_HOST}
+      - ${SMTP_EMAIL_HOST}
     servicePorts:
       - tcp/25
 - kind: NetworkSecurityPolicy
@@ -111,6 +111,34 @@ objects:
       name: ${NAME}
       weight: 100
 
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: ${NAME}-email-host
+    labels:
+      app: ${APP_GROUP}
+      name: ${NAME}
+      app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
+  stringData:
+    email-host: ${SMTP_EMAIL_HOST}
+  type: Opaque
+
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: ${NAME}-staff-emails
+    labels:
+      app: ${APP_GROUP}
+      name: ${NAME}
+      app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
+  stringData:
+    staff-emails: ${STAFF_EMAILS}
+  type: Opaque
+
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
@@ -172,13 +200,19 @@ objects:
           - name: DB_HOST
             value: ${DATABASE_SERVICE_NAME}
           - name: EMAIL_HOST
-            value: ${EMAIL_HOST}
+            valueFrom:
+              secretKeyRef:
+                name: ${NAME}-email-host
+                key: email-host
           - name: EMAIL_PORT
             value: ${EMAIL_PORT}
           - name: EMAIL_USE_SSL
             value: ${EMAIL_USE_SSL}
           - name: STAFF_EMAILS
-            value: ${STAFF_EMAILS}
+            valueFrom:
+              secretKeyRef:
+                name: ${NAME}-staff-emails
+                key: staff-emails
           - name: APP_MODULE
             value: ${APP_MODULE}
           - name: APP_CONFIG
@@ -332,10 +366,9 @@ parameters:
   displayName: Database Service Name
   required: true
   value: iiw-book-postgres
-- name: EMAIL_HOST
+- name: SMTP_EMAIL_HOST
   displayName: Email Host Name
   required: true
-  value: smtp.host
 - name: EMAIL_PORT
   displayName: Email Port
   required: true
@@ -347,7 +380,6 @@ parameters:
 - name: STAFF_EMAILS
   displayName: Emails to send notifications to
   required: true
-  value: ""
 - name: CONFERENCE_OPTIONS
   displayName: Conference Options
   required: true
