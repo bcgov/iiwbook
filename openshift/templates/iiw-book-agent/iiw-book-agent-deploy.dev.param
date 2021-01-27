@@ -5,7 +5,7 @@
 #=========================================================
 # NAME=iiw-book-agent
 # APP_GROUP=iiw-book
-NAMESPACE_NAME=4a9599
+NAMESPACE_NAME=a99fd4
 # ROLE=agent
 APPLICATION_DOMAIN=iiw-book-agent-dev.apps.silver.devops.gov.bc.ca
 APPLICATION_ADMIN_DOMAIN=iiw-book-agent-admin-dev.apps.silver.devops.gov.bc.ca
