@@ -365,7 +365,7 @@ parameters:
 - name: DATABASE_SERVICE_NAME
   displayName: Database Service Name
   required: true
-  value: iiw-book-postgres
+  value: iiw-book-db
 - name: SMTP_EMAIL_HOST
   displayName: Email Host Name
   required: true
