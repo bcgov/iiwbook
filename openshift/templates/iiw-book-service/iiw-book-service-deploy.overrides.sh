@@ -17,8 +17,8 @@ if createOperation; then
 else
   # Secrets are removed from the configurations during update operations ...
   printStatusMsg "Update operation detected ...\nSkipping the prompts for WALLET_SEED secret... \n"
-  writeParameter "SMTP_EMAIL_HOST" "prompt_skipped" "false"
-  writeParameter "STAFF_EMAILS" "prompt_skipped" "false"
+  writeParameter "SMTP_EMAIL_HOST" $(getSecret "${NAME}-email-host" "email-host") "false"
+  writeParameter "STAFF_EMAILS" $(getSecret "${NAME}-staff-emails" "staff-emails") "false"
 fi
 
 SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"
