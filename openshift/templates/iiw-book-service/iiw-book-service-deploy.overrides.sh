@@ -14,11 +14,13 @@ if createOperation; then
   # Ask the user to supply the sensitive parameters ...
   readParameter "SMTP_EMAIL_HOST - Please provide the host name of the email server:" SMTP_EMAIL_HOST "smtp.host.io"
   readParameter "STAFF_EMAILS - Please provide any staff emails" STAFF_EMAILS "addr@mail.com"
+  readParameter "INDY_EMAIL_VERIFIER_DID - Please provide the DID of the indy email verifier" INDY_EMAIL_VERIFIER_DID "MTYqmTBoLT7KLP5RNfgK3b"
 else
   # Secrets are removed from the configurations during update operations ...
   printStatusMsg "Update operation detected ...\nSkipping the prompts for WALLET_SEED secret... \n"
   writeParameter "SMTP_EMAIL_HOST" $(getSecret "${NAME}-email-host" "email-host") "false"
   writeParameter "STAFF_EMAILS" $(getSecret "${NAME}-staff-emails" "staff-emails") "false"
+  writeParameter "INDY_EMAIL_VERIFIER_DID" $(getSecret "${NAME}-verifier-did" "verifier-did") "false"
 fi
 
 SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"

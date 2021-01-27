@@ -128,6 +128,20 @@ objects:
 - kind: Secret
   apiVersion: v1
   metadata:
+    name: ${NAME}-verifier-did
+    labels:
+      app: ${APP_GROUP}
+      name: ${NAME}
+      app-group: ${APP_GROUP}
+      role: ${ROLE}
+      env: ${TAG_NAME}
+  stringData:
+    verifier-did: ${INDY_EMAIL_VERIFIER_DID}
+  type: Opaque
+
+- kind: Secret
+  apiVersion: v1
+  metadata:
     name: ${NAME}-staff-emails
     labels:
       app: ${APP_GROUP}
@@ -171,7 +185,10 @@ objects:
           - name: PORT
             value: ${PORT}
           - name: INDY_EMAIL_VERIFIER_DID
-            value: ${INDY_EMAIL_VERIFIER_DID}
+            valueFrom:
+              secretKeyRef:
+                name: ${NAME}-verifier-did
+                key: verifier-did
           - name: SITE_URL
             value: ${SITE_URL}
           - name: AGENT_URL
@@ -338,7 +355,6 @@ parameters:
   displayName: Indy Email Verifier DID
   description: The did of the email verifier issuer that we trust
   required: true
-  value: "MTYqmTBoLT7KLP5RNfgK3b"
 - name: SITE_URL
   displayName: Site URL
   description: The URL for the site
