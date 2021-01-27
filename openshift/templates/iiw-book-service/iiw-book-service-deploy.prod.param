@@ -8,7 +8,7 @@
 NAMESPACE_NAME=a99fd4
 # ROLE=service
 # AGENT_SERVICE_NAME=iiw-book-agent
-APPLICATION_DOMAIN=iiw-book-service-devex-von-image-prod.pathfinder.gov.bc.ca
+APPLICATION_DOMAIN=iiwbook.vonx.io
 # CONF_BOOK_ROUTE_NAME=conf-book-service
 CONF_BOOK_APPLICATION_DOMAIN=confbook.vonx.io
 IMAGE_NAMESPACE=a99fd4-tools

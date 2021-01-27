@@ -3,7 +3,7 @@
 # Component: .
 # Template File: ../openshift/templates/postgresql/postgresql-deploy.yaml
 #=========================================================
-# NAME=postgresql
+# NAME=iiw-book-db
 # APP_NAME=iiw-book
 NAMESPACE_NAME=a99fd4
 # ROLE=db

@@ -3,7 +3,7 @@
 # Component: .
 # Template File: ../openshift/templates/postgresql/postgresql-build.yaml
 #=========================================================
-# NAME=postgresql
+# NAME=iiw-book-db
 # APP_NAME=iiw-book
 # OUTPUT_IMAGE_TAG=latest
 # SOURCE_IMAGE_KIND=DockerImage

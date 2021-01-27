@@ -7,7 +7,7 @@
 # APP_GROUP=iiw-book
 NAMESPACE_NAME=a99fd4
 # ROLE=agent
-APPLICATION_DOMAIN=iiw-book-agent-dev.apps.silver.devops.gov.bc.ca
+APPLICATION_DOMAIN=iiwbook-agent-dev.apps.silver.devops.gov.bc.ca
 APPLICATION_ADMIN_DOMAIN=iiw-book-agent-admin-dev.apps.silver.devops.gov.bc.ca
 IMAGE_NAMESPACE=a99fd4-tools
 TAG_NAME=dev
@@ -16,7 +16,7 @@ TAG_NAME=dev
 # ADMIN_API_KEY=
 # WALLET_KEY=
 # WALLET_SEED=[a-zA-Z0-9]{32}
-AGENT_URL=https://iiw-book-agent-dev.apps.silver.devops.gov.bc.ca
+AGENT_URL=https://iiwbook-agent-dev.apps.silver.devops.gov.bc.ca
 # WEBHOOK_URL=http://iiw-book-service:8080/webhooks
 GENESIS_FILE_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis
 # DISPLAY_LABEL=ConfBook

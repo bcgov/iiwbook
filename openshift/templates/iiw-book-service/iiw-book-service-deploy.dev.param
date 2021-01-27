@@ -8,7 +8,7 @@
 NAMESPACE_NAME=a99fd4
 # ROLE=service
 # AGENT_SERVICE_NAME=iiw-book-agent
-APPLICATION_DOMAIN=iiw-book-service-dev.apps.silver.devops.gov.bc.ca
+APPLICATION_DOMAIN=iiwbook-dev.apps.silver.devops.gov.bc.ca
 # CONF_BOOK_ROUTE_NAME=conf-book-service
 CONF_BOOK_APPLICATION_DOMAIN=confbook-dev.apps.silver.devops.gov.bc.ca
 IMAGE_NAMESPACE=a99fd4-tools
@@ -18,7 +18,7 @@ TAG_NAME=dev
 # WEB_CONCURRENCY=1
 # PORT=8080
 # INDY_EMAIL_VERIFIER_DID=MTYqmTBoLT7KLP5RNfgK3b
-SITE_URL=https://iiw-book-dev.apps.silver.devops.gov.bc.ca
+SITE_URL=https://iiwbook-dev.apps.silver.devops.gov.bc.ca
 # AGENT_URL=http://iiw-book-agent:4000
 # DEBUG=true
 # DATABASE_NAME=iiw-book-db
