@@ -1,0 +1,35 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/iiw-book-service/iiw-book-service-deploy.yaml
+#=========================================================
+# NAME=iiw-book-service
+# APP_GROUP=iiw-book
+NAMESPACE_NAME=a99fd4
+# ROLE=servcie
+AGENT_SERVICE_NAME=iiw-book-agent
+APPLICATION_DOMAIN=iiw-book-service-dev.apps.silver.devops.gov.bc.ca
+# CONF_BOOK_ROUTE_NAME=conf-book-service
+CONF_BOOK_APPLICATION_DOMAIN=confbook-dev.apps.silver.devops.gov.bc.ca
+IMAGE_NAMESPACE=a99fd4-tools
+# TAG_NAME=tools
+# APP_MODULE=iiw_book_service.wsgi
+# APP_CONFIG=python:iiw_book_service.settings
+# WEB_CONCURRENCY=1
+# PORT=8080
+# INDY_EMAIL_VERIFIER_DID=MTYqmTBoLT7KLP5RNfgK3b
+SITE_URL=https://iiw-book-dev.apps.silver.devops.gov.bc.ca
+# AGENT_URL=http://iiw-book-agent:4000
+# DEBUG=true
+# DATABASE_NAME=iiw-book-db
+# DATABASE_PORT=5432
+# DATABASE_SERVICE_NAME=iiw-book-postgres
+# EMAIL_HOST=smtp.host
+# EMAIL_PORT=25
+# EMAIL_USE_SSL=false
+# STAFF_EMAILS=nick@lucent.is,swcurran@cloudcompass.ca,john.jordan@gov.bc.ca
+# CONFERENCE_OPTIONS=IIW,Hyperledger Global Forum
+# CPU_REQUEST=0
+# CPU_LIMIT=0
+# MEMORY_REQUEST=0Mi
+# MEMORY_LIMIT=0Mi
