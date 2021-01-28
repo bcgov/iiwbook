@@ -17,7 +17,7 @@ if createOperation; then
   readParameter "INDY_EMAIL_VERIFIER_DID - Please provide the DID of the indy email verifier" INDY_EMAIL_VERIFIER_DID "MTYqmTBoLT7KLP5RNfgK3b"
 else
   # Secrets are removed from the configurations during update operations ...
-  printStatusMsg "Update operation detected ...\nSkipping the prompts for WALLET_SEED secret... \n"
+  printStatusMsg "Getting SMTP_EMAIL_HOST for the ExternalNetwork definition from secret ...\n"
   writeParameter "SMTP_EMAIL_HOST" $(getSecret "${NAME}-email-host" "email-host") "false"
   writeParameter "STAFF_EMAILS" "prompt_skipped" "false"
   writeParameter "INDY_EMAIL_VERIFIER_DID" "prompt_skipped" "false"
