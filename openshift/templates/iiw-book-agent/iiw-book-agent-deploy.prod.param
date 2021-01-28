@@ -1,0 +1,29 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/iiw-book-agent/iiw-book-agent-deploy.yaml
+#=========================================================
+# NAME=iiw-book-agent
+NAMESPACE_NAME=a99fd4
+# NAMESPACE_NAME=myproject
+# ROLE=agent
+APPLICATION_DOMAIN=iiwbook-agent.vonx.io
+# APPLICATION_ADMIN_DOMAIN=iiwbook-agent-admin.vonx.io
+IMAGE_NAMESPACE=a99fd4-tools
+TAG_NAME=prod
+# INDY_ADMIN_PORT=4000
+# INDY_AGENT_PORT=11000
+# ADMIN_API_KEY=
+# WALLET_KEY=
+# WALLET_SEED=[a-zA-Z0-9]{32}
+# AGENT_URL=https://iiwbook-agent.vonx.io
+# WEBHOOK_URL=http://iiw-book-service:8080/webhooks
+# GENESIS_FILE_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis
+# DISPLAY_LABEL=ConfBook
+# MOUNT_PATH=/home/indy/.indy_client/wallet
+# PERSISTENT_VOLUME_SIZE=5Gi
+# PERSISTENT_VOLUME_CLASS=netapp-file-standard
+CPU_REQUEST=10m
+CPU_LIMIT=250m
+MEMORY_REQUEST=10Mi
+MEMORY_LIMIT=1Gi
