@@ -4,12 +4,11 @@
 # Template File: ../openshift/templates/iiw-book-agent/iiw-book-agent-build.yaml
 #=========================================================
 NAME=iiw-book-agent
-# APP_NAME=iiw-book
-# CRED_NAME=artifactory-creds
-# DOCKER_REG=docker-remote.artifacts.developer.gov.bc.ca/bcgovimages/aries-cloudagent:py36-1.15-0_0.5.6
+APP_NAME=iiw-book
 GIT_REPO_URL=https://github.com/bcgov/iiwbook.git
 GIT_REF=master
-# SOURCE_CONTEXT_DIR=
-# DOCKER_FILE_PATH=./docker/iiw-book-agent/Dockerfile
-# NO_CACHE=true
-# OUTPUT_IMAGE_TAG=latest
+SOURCE_CONTEXT_DIR=
+DOCKER_FILE_PATH=./docker/iiw-book-agent/Dockerfile
+SOURCE_IMAGE=docker-remote.artifacts.developer.gov.bc.ca/bcgovimages/aries-cloudagent:py36-1.15-1_0.6.0
+NO_CACHE=true
+OUTPUT_IMAGE_TAG=latest

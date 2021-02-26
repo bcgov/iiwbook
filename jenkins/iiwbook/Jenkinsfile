@@ -15,11 +15,11 @@ def COMPONENTS = ['iiw-book-agent', 'iiw-book-service']
 def TAG_NAMES = ['dev', 'test', 'prod']
 
 // Edit your deployment environment names below
-def DEP_ENV_NAMES = ['tools', 'dev', 'test', 'prod']
+def DEP_ENV_NAMES = ['dev', 'test', 'prod']
 
 
 // The base namespace of you environments.
-def NAME_SPACE = 'devex-von-image'
+def NAME_SPACE = 'a99fd4'
 
 // Get an image's hash tag
 String getImageTagHash(String imageName, String tag = "") {

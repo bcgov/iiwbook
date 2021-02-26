@@ -198,6 +198,7 @@ objects:
                   --wallet-type indy
                   --auto-accept-invites
                   --auto-accept-requests
+                  --auto-provision
                   $([ ! -z "${AGENT_ADMIN_API_KEY}" ] && echo "--admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "--admin-insecure-mode")
                   );
               env:
