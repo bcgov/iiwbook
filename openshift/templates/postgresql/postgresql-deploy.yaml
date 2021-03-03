@@ -50,7 +50,7 @@ objects:
         - from:
             - podSelector:
                 matchLabels:
-                  role: service
+                  role: ${SERVICE_ROLE}
                   app: ${APP_NAME}
                   env: ${TAG_NAME}
               namespaceSelector:
@@ -253,6 +253,11 @@ parameters:
     description: used to divide componenets into specific roles
     required: true
     value: db
+  - name: SERVICE_ROLE
+    displayName: App Role
+    description: used to divide componenets into specific roles
+    required: true
+    value: service
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true
