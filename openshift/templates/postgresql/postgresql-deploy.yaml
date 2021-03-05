@@ -57,6 +57,14 @@ objects:
                 matchLabels:
                   name: ${NAMESPACE_NAME}
                   environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${BACKUP_ROLE}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE_NAME}
+                  environment: ${TAG_NAME}
           ports:
             - protocol: TCP
               port: 5432
@@ -258,6 +266,11 @@ parameters:
     description: used to divide componenets into specific roles
     required: true
     value: service
+  - name: BACKUP_ROLE
+    displayName: Backup Role
+    description: The role of the backup container - used for Network Policies
+    required: true
+    value: backup-container
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true

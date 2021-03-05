@@ -285,6 +285,8 @@ objects:
                   value: ${WEBHOOK_URL}
                 - name: ACAPY_LABEL
                   value: ${DISPLAY_LABEL}
+                - name: ACAPY_READ_ONLY_LEDGER
+                  value: ${AGENT_READ_ONLY_LEDGER}
               image: " "
               ports:
                 - containerPort: ${{INDY_ADMIN_PORT}}
@@ -377,6 +379,11 @@ parameters:
     displayName: Namespace containing application images.
     required: true
     value: devex-von-image-tools
+  - name: AGENT_READ_ONLY_LEDGER
+    displayName: Set read only ledger flag.
+    description: Enable/Disable the read only ledger flag.  Controls the inclusion/exclusion of the agent '--read-only-ledger' startup parameter.  Defaults to disabled.
+    required: true
+    value: "false"
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod.

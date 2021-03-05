@@ -11,6 +11,7 @@ SERVICE_ROLE=service
 APPLICATION_DOMAIN=iiwbook-agent-dev.apps.silver.devops.gov.bc.ca
 APPLICATION_ADMIN_DOMAIN=iiwbook-agent-admin-dev.apps.silver.devops.gov.bc.ca
 IMAGE_NAMESPACE=a99fd4-tools
+AGENT_READ_ONLY_LEDGER=false
 # TAG_NAME=tools
 # INDY_ADMIN_PORT=4000
 # INDY_AGENT_PORT=11000
