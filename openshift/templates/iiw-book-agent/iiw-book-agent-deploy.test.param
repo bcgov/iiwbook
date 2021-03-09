@@ -7,9 +7,11 @@
 # APP_GROUP=iiw-book
 NAMESPACE_NAME=a99fd4
 # ROLE=agent
+# SERVICE_ROLE=service
 APPLICATION_DOMAIN=iiwbook-agent-test.apps.silver.devops.gov.bc.ca
 APPLICATION_ADMIN_DOMAIN=iiwbook-agent-admin-test.apps.silver.devops.gov.bc.ca
 IMAGE_NAMESPACE=a99fd4-tools
+# AGENT_READ_ONLY_LEDGER=false
 TAG_NAME=test
 # INDY_ADMIN_PORT=4000
 # INDY_AGENT_PORT=11000

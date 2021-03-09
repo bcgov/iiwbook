@@ -7,6 +7,7 @@
 # APP_GROUP=iiw-book
 NAMESPACE_NAME=a99fd4
 # ROLE=service
+# AGENT_ROLE=agent
 # AGENT_SERVICE_NAME=iiw-book-agent
 APPLICATION_DOMAIN=iiwbook-dev.apps.silver.devops.gov.bc.ca
 # CONF_BOOK_ROUTE_NAME=conf-book-service

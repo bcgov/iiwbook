@@ -7,6 +7,8 @@
 # APP_NAME=iiw-book
 NAMESPACE_NAME=a99fd4
 # ROLE=db
+# SERVICE_ROLE=service
+BACKUP_ROLE=backup-container
 IMAGE_NAMESPACE=a99fd4-tools
 # SOURCE_IMAGE_NAME=postgresql
 TAG_NAME=dev

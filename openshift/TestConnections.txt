@@ -6,4 +6,4 @@ google.com:80
 iiw-book-agent:1100
 iiw-book-agent:4000
 iiw-book-service:8080
-iiw-book-postgres:5432
+iiw-book-db:5432

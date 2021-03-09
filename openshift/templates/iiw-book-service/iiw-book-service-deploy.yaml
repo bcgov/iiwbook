@@ -4,50 +4,104 @@ apiVersion: v1
 metadata:
   name: ${NAME}
 objects:
-- kind: ExternalNetwork
-  apiVersion: security.devops.gov.bc.ca/v1alpha1
+# - kind: ExternalNetwork
+#   apiVersion: security.devops.gov.bc.ca/v1alpha1
+#   metadata:
+#     name: ${NAME}
+#     network: ${NAME}
+#     labels:
+#       name: ${NAME}
+#       network: ${NAME}
+#       app: ${APP_GROUP}
+#       app-group: ${APP_GROUP}
+#       env: ${TAG_NAME}
+#   spec:
+#     description: |
+#       Define the network parameters for accessing smtp server
+#     entries:
+#       - ${SMTP_EMAIL_HOST}
+#     servicePorts:
+#       - tcp/25
+# - kind: NetworkSecurityPolicy
+#   apiVersion: security.devops.gov.bc.ca/v1alpha1
+#   metadata:
+#     name: ${NAME}
+#     labels:
+#       name: ${NAME}
+#       env: ${TAG_NAME}
+#       app: ${APP_GROUP}
+#       app-group: ${APP_GROUP}
+#   spec:
+#     description: Allow service to access the database and agent
+#     source:
+#       - - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+#         - role=${ROLE}
+#         - app=${APP_GROUP}
+#         - env=${TAG_NAME}
+#     destination:
+#       - - ext:name=${NAME}
+#       - - role=db
+#         - app=${APP_GROUP}
+#         - env=${TAG_NAME}
+#         - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+#       - - role=agent
+#         - app=${APP_GROUP}
+#         - env=${TAG_NAME}
+#         - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+- kind: NetworkPolicy
+  apiVersion: networking.k8s.io/v1
   metadata:
-    name: ${NAME}
-    network: ${NAME}
+    name: ${NAME}-allow-ingress
     labels:
-      name: ${NAME}
-      network: ${NAME}
+      name: ${NAME}-allow-ingress
       app: ${APP_GROUP}
       app-group: ${APP_GROUP}
+      role: ${ROLE}
       env: ${TAG_NAME}
   spec:
     description: |
-      Define the network parameters for accessing smtp server
-    entries:
-      - ${SMTP_EMAIL_HOST}
-    servicePorts:
-      - tcp/25
-- kind: NetworkSecurityPolicy
-  apiVersion: security.devops.gov.bc.ca/v1alpha1
+      Allow traffic from routes into the ${ROLE} container(s).
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                network.openshift.io/policy-group: ingress
+    podSelector:
+      matchLabels:
+        role: ${ROLE}
+        app: ${APP_GROUP}
+        env: ${TAG_NAME}
+    policyTypes:
+      - Ingress
+- kind: NetworkPolicy
+  apiVersion: networking.k8s.io/v1
   metadata:
     name: ${NAME}
     labels:
       name: ${NAME}
-      env: ${TAG_NAME}
       app: ${APP_GROUP}
-      app-group: ${APP_GROUP}
+      env: ${TAG_NAME}
   spec:
-    description: Allow service to access the database and agent
-    source:
-      - - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
-        - role=${ROLE}
-        - app=${APP_GROUP}
-        - env=${TAG_NAME}
-    destination:
-      - - ext:name=${NAME}
-      - - role=db
-        - app=${APP_GROUP}
-        - env=${TAG_NAME}
-        - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
-      - - role=agent
-        - app=${APP_GROUP}
-        - env=${TAG_NAME}
-        - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+    description: Allow the agent to access the service.
+    ingress:
+      - from:
+        - podSelector:
+            matchLabels:
+              role: ${AGENT_ROLE}
+              app: ${APP_GROUP}
+              env: ${TAG_NAME}
+          namespaceSelector:
+            matchLabels:
+              name: ${NAMESPACE_NAME}
+              environment: ${TAG_NAME}
+        ports:
+          - protocol: TCP
+            port: ${{PORT}}
+    podSelector:
+      matchLabels:
+        role: ${ROLE}
+        app: ${APP_GROUP}
+        env: ${TAG_NAME}
 - kind: Service
   apiVersion: v1
   metadata:
@@ -302,6 +356,11 @@ parameters:
   description: used to divide componenets into specific roles
   required: true
   value: service
+- name: AGENT_ROLE
+  displayName: Agent Role
+  description: The role name of the agent service
+  required: true
+  value: agent
 - name: AGENT_SERVICE_NAME
   displayName: Agent Service Name
   description: The name of the agent service
