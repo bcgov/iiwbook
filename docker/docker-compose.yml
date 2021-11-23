@@ -1,7 +1,7 @@
 version: "3"
 services:
   iiw-book-agent:
-    image: bcgovimages/aries-cloudagent:py36-1.15-1_0.6.0
+    image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.0
     environment:
       ADMIN_PORT: 4000
       AGENT_PORT: 11000
