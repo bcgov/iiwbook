@@ -9,6 +9,6 @@ GIT_REPO_URL=https://github.com/bcgov/iiwbook.git
 GIT_REF=master
 SOURCE_CONTEXT_DIR=
 DOCKER_FILE_PATH=./docker/iiw-book-agent/Dockerfile
-SOURCE_IMAGE=docker-remote.artifacts.developer.gov.bc.ca/bcgovimages/aries-cloudagent:py36-1.16-1_0.7.0
+SOURCE_IMAGE=artifacts.developer.gov.bc.ca/docker-remote/bcgovimages/aries-cloudagent:py36-1.16-1_0.7.0
 NO_CACHE=true
 OUTPUT_IMAGE_TAG=latest
