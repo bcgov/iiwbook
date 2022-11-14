@@ -10,6 +10,7 @@ NAMESPACE_NAME=a99fd4
 # SERVICE_ROLE=service
 APPLICATION_DOMAIN=iiwbook-agent-test.apps.silver.devops.gov.bc.ca
 APPLICATION_ADMIN_DOMAIN=iiwbook-agent-admin-test.apps.silver.devops.gov.bc.ca
+# CERTBOT_MANAGED_ROUTE=false
 IMAGE_NAMESPACE=a99fd4-tools
 # AGENT_READ_ONLY_LEDGER=false
 TAG_NAME=test

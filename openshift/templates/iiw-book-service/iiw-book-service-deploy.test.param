@@ -12,6 +12,7 @@ NAMESPACE_NAME=a99fd4
 APPLICATION_DOMAIN=iiwbook-test.apps.silver.devops.gov.bc.ca
 # CONF_BOOK_ROUTE_NAME=conf-book-service
 CONF_BOOK_APPLICATION_DOMAIN=confbook-test.apps.silver.devops.gov.bc.ca
+# CERTBOT_MANAGED_ROUTE=false
 IMAGE_NAMESPACE=a99fd4-tools
 TAG_NAME=test
 # APP_MODULE=iiw_book_service.wsgi
