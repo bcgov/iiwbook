@@ -12,6 +12,7 @@ NAMESPACE_NAME=a99fd4
 APPLICATION_DOMAIN=iiwbook.vonx.io
 # CONF_BOOK_ROUTE_NAME=conf-book-service
 CONF_BOOK_APPLICATION_DOMAIN=confbook.vonx.io
+CERTBOT_MANAGED_ROUTE=true
 IMAGE_NAMESPACE=a99fd4-tools
 TAG_NAME=prod
 # APP_MODULE=iiw_book_service.wsgi
